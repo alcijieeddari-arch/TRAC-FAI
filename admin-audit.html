@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Log | Trac-Fai Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon"><img src="img/logo.png" alt="Trac-Fai Logo" /></div>
+          <span>Trac-Fai <span class="logo-accent">Admin</span></span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Dashboard</div>
+        <a href="admin-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Overview</a>
+        <div class="nav-section-label">Elections</div>
+        <a href="admin-elections.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Manage Elections</a>
+        <a href="admin-candidates.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="users"></i></span> Candidates</a>
+        <a href="admin-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Results & Reports</a>
+        <div class="nav-section-label">Users</div>
+        <a href="admin-voters.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="user-check"></i></span> Voter Management</a>
+        <div class="nav-section-label">System</div>
+        <a href="admin-audit.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="clipboard-list"></i></span> Audit Log</a>
+        <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="su-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">AD</div>
+          <div class="su-info">
+            <div class="su-name" id="sidebarName">Administrator</div>
+            <div class="su-role" style="color:var(--warning);"><i data-lucide="settings" style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
+          </div>
+          <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+        <div class="topbar-breadcrumb">
+          <div class="breadcrumb-page"><i data-lucide="clipboard-list"></i> Audit Log</div>
+          <div class="breadcrumb-sub">Complete system activity trail</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="topbar-btn" data-open-prefs title="Settings"><i data-lucide="sliders-horizontal"></i></button>
+          <div class="topbar-search">
+            <span><i data-lucide="search"></i></span>
+            <input type="text" id="searchAudit" placeholder="Search logs..." />
+          </div>
+          <button class="btn-theme-toggle topbar-btn" id="themeToggle">
+            <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+            <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          <button class="btn-outline btn-sm" onclick="exportAuditCSV()"><i data-lucide="download"></i> Export</button>
+          <button class="btn-ghost btn-sm" onclick="loadAuditLog()" title="Refresh"><i data-lucide="refresh-cw"></i></button>
+        </div>
+      </div>
+
+      <div class="dashboard-content">
+        <!-- Filter Bar -->
+        <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+          <select id="filterAction" style="padding:0.5rem 1rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-full); color:var(--text-primary); font-size:0.85rem;">
+            <option value="">All Actions</option>
+            <option value="LOGIN">Login</option>
+            <option value="LOGOUT">Logout</option>
+            <option value="VOTE">Vote Cast</option>
+            <option value="ELECTION">Elections</option>
+            <option value="CANDIDATE">Candidates</option>
+            <option value="VOTER">Voters</option>
+            <option value="EXPORT">Exports</option>
+            <option value="PASSWORD">Password Changes</option>
+          </select>
+          <span style="flex:1"></span>
+          <span id="auditCount" style="font-size:0.82rem; color:var(--text-muted); align-self:center;"></span>
+        </div>
+
+        <!-- Stats Row -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem;">
+          <div class="stat-widget blue">
+            <div class="sw-header"><div class="sw-icon blue"><i data-lucide="bar-chart-2"></i></div></div>
+            <div class="sw-value" id="auditTotal">—</div>
+            <div class="sw-label">Total Events</div>
+          </div>
+          <div class="stat-widget green">
+            <div class="sw-header"><div class="sw-icon green"><i data-lucide="check-square"></i></div></div>
+            <div class="sw-value" id="auditVotes">—</div>
+            <div class="sw-label">Vote Events</div>
+          </div>
+          <div class="stat-widget purple">
+            <div class="sw-header"><div class="sw-icon purple"><i data-lucide="key-round"></i></div></div>
+            <div class="sw-value" id="auditLogins">—</div>
+            <div class="sw-label">Login Events</div>
+          </div>
+          <div class="stat-widget amber">
+            <div class="sw-header"><div class="sw-icon amber"><i data-lucide="settings"></i></div></div>
+            <div class="sw-value" id="auditAdmin">—</div>
+            <div class="sw-label">Admin Actions</div>
+          </div>
+        </div>
+
+        <!-- Audit Table -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <span class="widget-title"><i data-lucide="clipboard-list"></i> Activity Log</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Last 500 events · newest first</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Description</th>
+                  <th>User</th>
+                  <th>IP Address</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let allLogs = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = Auth.requireAuth('admin');
+      if (!session) return;
+      document.getElementById('sidebarName').textContent = session.name;
+
+      ['logoutBtn', 'logoutBtn2'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+      });
+
+      document.getElementById('searchAudit').addEventListener('input', renderFiltered);
+      document.getElementById('filterAction').addEventListener('change', renderFiltered);
+
+      await loadAuditLog();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+
+    async function loadAuditLog() {
+      const tbody = document.getElementById('auditTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading...</td></tr>';
+      try {
+        const data = await ApiClient.get('/audit?page=1&per_page=500');
+        allLogs = data.logs || [];
+        renderFiltered();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:2rem;">Error loading audit log: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderFiltered() {
+      const search = document.getElementById('searchAudit').value.toLowerCase();
+      const filterAction = document.getElementById('filterAction').value;
+
+      // Stats from all logs
+      document.getElementById('auditTotal').textContent = allLogs.length;
+      document.getElementById('auditVotes').textContent = allLogs.filter(l => l.action.includes('VOTE')).length;
+      document.getElementById('auditLogins').textContent = allLogs.filter(l => l.action === 'LOGIN' || l.action === 'LOGOUT').length;
+      document.getElementById('auditAdmin').textContent = allLogs.filter(l => !l.action.includes('VOTE') && l.action !== 'LOGIN' && l.action !== 'LOGOUT').length;
+
+      let logs = [...allLogs];
+      if (search) logs = logs.filter(l =>
+        (l.description || '').toLowerCase().includes(search) ||
+        (l.action || '').toLowerCase().includes(search) ||
+        (l.ip || '').toLowerCase().includes(search)
+      );
+      if (filterAction) logs = logs.filter(l => l.action.includes(filterAction));
+
+      document.getElementById('auditCount').textContent = `${logs.length} event${logs.length !== 1 ? 's' : ''}`;
+
+      const actionColors = {
+        'LOGIN': 'badge-primary', 'LOGOUT': 'badge-muted',
+        'VOTE_CAST': 'badge-success',
+        'ELECTION_CREATE': 'badge-warning', 'ELECTION_EDIT': 'badge-warning', 'ELECTION_DELETE': 'badge-danger',
+        'CANDIDATE_ADD': 'badge-primary', 'CANDIDATE_EDIT': 'badge-primary', 'CANDIDATE_REMOVE': 'badge-danger',
+        'VOTER_REGISTER': 'badge-success', 'VOTER_EDIT': 'badge-primary', 'VOTER_REMOVE': 'badge-danger',
+        'VOTER_STATUS': 'badge-warning', 'PASSWORD_CHANGED': 'badge-warning',
+        'EXPORT_CSV': 'badge-primary',
+      };
+
+      const tbody = document.getElementById('auditTableBody');
+      if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">No log entries found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = logs.map((l, i) => {
+        const badgeClass = actionColors[l.action] || 'badge-muted';
+        const ts = l.timestamp ? new Date(l.timestamp).toLocaleString('en-PH', { dateStyle: 'short', timeStyle: 'medium' }) : '—';
+        return `
+          <tr>
+            <td style="color:var(--text-muted);font-size:0.78rem;">${i + 1}</td>
+            <td style="font-size:0.78rem;white-space:nowrap;font-family:monospace;">${ts}</td>
+            <td><span class="badge ${badgeClass}" style="font-size:0.7rem;">${l.action}</span></td>
+            <td style="font-size:0.84rem;">${l.description || '—'}</td>
+            <td style="font-size:0.78rem;color:var(--text-muted);">${l.userName || (l.userId ? 'User #' + l.userId : '—')}</td>
+            <td style="font-size:0.78rem;font-family:monospace;color:var(--text-muted);">${l.ip || '—'}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function exportAuditCSV() {
+      const rows = allLogs.map(l => {
+        const ts = l.timestamp ? new Date(l.timestamp).toLocaleString('en-PH') : '—';
+        return [ts, l.action, l.description || '', l.userName || '', l.ip || '—'];
+      });
+      Utils.exportCSV(
+        `TracFai-AuditLog-${new Date().toISOString().slice(0, 10)}.csv`,
+        ['Timestamp', 'Action', 'Description', 'User', 'IP Address'],
+        rows
+      );
+      Toast.show('Audit log exported!', 'success');
+      try { await ApiClient.post('/audit/log', { action: 'EXPORT_CSV', description: 'Audit log exported to CSV' }); } catch(_) {}
+    }
+  </script>
+</body>
+</html>

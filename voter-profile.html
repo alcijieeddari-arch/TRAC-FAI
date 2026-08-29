@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile | Trac-Fai E-Voting System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+<body>
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <img src="img/logo.png" alt="Trac-Fai Logo" />
+        </div>
+        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <a href="voter-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a>
+      <a href="voter-vote.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Cast My Vote</a>
+      <a href="voter-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Election Results</a>
+      <div class="nav-section-label">Account</div>
+      <a href="voter-profile.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="user"></i></span> My Profile</a>
+      <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="su-avatar" id="sidebarAvatar">JD</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebarName">Loading...</div>
+          <div class="su-role">Faculty Voter</div>
+        </div>
+        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+      <div class="topbar-breadcrumb">
+        <div class="breadcrumb-page">👤 My Profile</div>
+        <div class="breadcrumb-sub">Manage your voter account</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+        <button class="btn-theme-toggle topbar-btn" id="themeToggle">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+      <!-- Profile Header -->
+      <div style="background: var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); padding:2rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:2rem; flex-wrap:wrap;">
+        <!-- Clickable avatar with upload overlay -->
+        <div style="position:relative; flex-shrink:0;" id="avatarUploadWrap">
+          <div style="width:90px; height:90px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:2.2rem; font-weight:800; color:white; overflow:hidden; cursor:pointer;" id="bigAvatar" title="Click to upload photo">JD</div>
+          <label for="profilePhotoFile" style="position:absolute; bottom:0; right:0; width:28px; height:28px; border-radius:50%; background:var(--secondary); border:2px solid var(--bg-card); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.8rem;" title="Upload photo">📷</label>
+          <input type="file" id="profilePhotoFile" accept="image/*" style="display:none;" />
+        </div>
+        <div style="flex:1;">
+          <h1 style="font-size:1.5rem; margin-bottom:0.25rem;" id="profileFullName">Loading...</h1>
+          <div style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.75rem;" id="profileEmployeeId">—</div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+            <span class="badge badge-success"><i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Active Voter</span>
+            <span class="badge badge-primary" id="profileDeptBadge">—</span>
+            <button type="button" id="removeProfilePhoto" style="display:none; font-size:0.75rem; color:var(--danger); background:none; border:none; cursor:pointer; padding:0; font-weight:500;"><i data-lucide="x"></i> Remove photo</button>
+          </div>
+        </div>
+        <div style="text-align:right; flex-shrink:0;">
+          <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.25rem;">Member Since</div>
+          <div style="font-weight:600;" id="memberSince">—</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1.25rem;">
+        <!-- Account Info -->
+        <div>
+          <div class="form-section">
+            <div class="form-section-title"><i data-lucide="clipboard-list"></i> Account Information</div>
+            <div style="display:grid; gap:1rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" id="editName" readonly />
+                </div>
+                <div class="form-group">
+                  <label>Employee ID</label>
+                  <input type="text" id="editEmpId" readonly />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="editEmail" readonly />
+              </div>
+              <div class="form-group">
+                <label>Department</label>
+                <input type="text" id="editDept" readonly />
+              </div>
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="editUsername" readonly />
+              </div>
+            </div>
+          </div>
+
+          <!-- Change Password -->
+          <div class="form-section">
+            <div class="form-section-title"><i data-lucide="lock"></i> Change Password</div>
+            <form id="changePasswordForm" style="display:grid; gap:1rem;">
+              <div class="form-group">
+                <label for="currentPw">Current Password</label>
+                <input type="password" id="currentPw" placeholder="Enter current password" />
+              </div>
+              <div class="form-group">
+                <label for="newPw">New Password</label>
+                <input type="password" id="newPw" placeholder="Minimum 6 characters" />
+              </div>
+              <div class="form-group">
+                <label for="confirmPw">Confirm New Password</label>
+                <input type="password" id="confirmPw" placeholder="Re-enter new password" />
+              </div>
+              <button type="submit" class="btn-primary"><i data-lucide="lock"></i> Update Password</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+          <!-- Voting History -->
+          <div class="form-section">
+            <div class="form-section-title"><i data-lucide="check-square"></i> Voting History</div>
+            <div id="votingHistory" style="display:flex; flex-direction:column; gap:0.75rem;">
+              <div style="color:var(--text-muted); font-size:0.84rem;">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="form-section">
+            <div class="form-section-title"><i data-lucide="clipboard-list"></i> Login Activity</div>
+            <div class="activity-log" id="loginActivity"></div>
+          </div>
+
+          <!-- Security Info -->
+          <div class="form-section" style="background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.2);">
+            <div class="form-section-title" style="color:var(--success);"><i data-lucide="shield"></i> Security Status</div>
+            <div style="display:flex; flex-direction:column; gap:0.6rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;">
+                <span>Account Status</span>
+                <span class="badge badge-success">Active</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;">
+                <span>Vote Integrity</span>
+                <span class="badge badge-success">Protected</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;">
+                <span>Session</span>
+                <span class="badge badge-primary">JWT Secured</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>  <script src="js/api.js"></script>
+
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const session = Auth.requireAuth('voter');
+  if (!session) return;
+
+  const PHOTO_KEY = 'tracfai_photo_';
+  const initials = session.name.split(' ').map(n=>n[0]).join('').substr(0,2).toUpperCase();
+
+  // ── Load saved profile photo ──
+  function loadProfilePhoto() {
+    const photo = localStorage.getItem(PHOTO_KEY + session.id) || session.photoUrl;
+    const bigAvatar = document.getElementById('bigAvatar');
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
+    if (photo) {
+      const src = photo.startsWith('http') || photo.startsWith('data:') ? photo : '/uploads/' + photo;
+      bigAvatar.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      sidebarAvatar.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      sidebarAvatar.style.padding = '0';
+      document.getElementById('removeProfilePhoto').style.display = '';
+    } else {
+      bigAvatar.textContent = initials;
+      sidebarAvatar.textContent = initials;
+      sidebarAvatar.style.padding = '';
+      document.getElementById('removeProfilePhoto').style.display = 'none';
+    }
+  }
+
+  document.getElementById('sidebarName').textContent = session.name;
+  loadProfilePhoto();
+
+  // ── Photo upload ──
+  document.getElementById('profilePhotoFile').addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      Toast.show('Image must be under 5MB.', 'error'); this.value = ''; return;
+    }
+    if (!file.type.startsWith('image/')) {
+      Toast.show('Please select a valid image file.', 'error'); this.value = ''; return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(ev) {
+      const dataUrl = ev.target.result;
+      localStorage.setItem(PHOTO_KEY + session.id, dataUrl);
+      session.photoUrl = dataUrl;
+      localStorage.setItem('tracfai_session', JSON.stringify(session));
+      loadProfilePhoto();
+
+      // Sync to backend
+      try {
+        const formData = new FormData();
+        formData.append('photo', file);
+        const res = await ApiClient.upload('/voters/upload-photo', formData);
+        if (res.photoUrl) {
+          session.photoUrl = res.photoUrl;
+          localStorage.setItem('tracfai_session', JSON.stringify(session));
+          localStorage.setItem(PHOTO_KEY + session.id, res.photoUrl);
+        }
+      } catch (_) {
+        try {
+          await ApiClient.post('/voters/upload-photo', { photoUrl: dataUrl });
+        } catch (e) {
+          console.warn('Backend photo upload fallback:', e);
+        }
+      }
+
+      Toast.show('Profile photo saved and updated!', 'success');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ── Remove photo ──
+  document.getElementById('removeProfilePhoto').addEventListener('click', async function() {
+    localStorage.removeItem(PHOTO_KEY + session.id);
+    session.photoUrl = null;
+    localStorage.setItem('tracfai_session', JSON.stringify(session));
+    document.getElementById('profilePhotoFile').value = '';
+    loadProfilePhoto();
+    try { await ApiClient.del('/voters/upload-photo'); } catch (_) {}
+    Toast.show('Profile photo removed.', 'info');
+  });
+
+  // ── Click big avatar to open file picker ──
+  document.getElementById('bigAvatar').addEventListener('click', function() {
+    document.getElementById('profilePhotoFile').click();
+  });
+  document.getElementById('profileFullName').textContent = session.name;
+  document.getElementById('profileEmployeeId').textContent = 'Employee ID: ' + (session.employeeId || 'FAC-' + session.id.toString().padStart(4,'0'));
+  document.getElementById('profileDeptBadge').textContent = session.department || 'Unassigned';
+  document.getElementById('memberSince').textContent = Utils.formatDate(session.createdAt || new Date().toISOString());
+
+  // Form fields
+  document.getElementById('editName').value = session.name;
+  document.getElementById('editEmpId').value = session.employeeId || 'FAC-' + session.id.toString().padStart(4,'0');
+  document.getElementById('editEmail').value = session.email || '—';
+  document.getElementById('editDept').value = session.department || 'Unassigned';
+  document.getElementById('editUsername').value = session.username || '—';
+
+  // Voting History
+  (async () => {
+    try {
+      const eData = await ApiClient.get('/elections');
+      const elections = eData.elections || eData || [];
+      const myVotes = [];
+
+      for (const e of elections) {
+        try {
+          const vs = await ApiClient.get(`/votes/my/${e.id}`);
+          if (vs.hasVoted) {
+            myVotes.push({ election: e, receiptCode: vs.receiptCode });
+          }
+        } catch (_) {}
+      }
+
+      const histEl = document.getElementById('votingHistory');
+      if (myVotes.length === 0) {
+        histEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.84rem; text-align:center; padding:1rem;">No voting history yet.</div>';
+      } else {
+        histEl.innerHTML = myVotes.map(v => `
+          <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.9rem;">
+            <div style="font-weight:600; font-size:0.85rem; margin-bottom:0.3rem;">${v.election.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Status: Recorded</div>
+            <div style="font-size:0.72rem; font-family:monospace; color:var(--primary-light); margin-top:0.4rem;">Receipt: ${v.receiptCode || 'Verified'}</div>
+          </div>
+        `).join('');
+      }
+    } catch (_) {}
+  })();
+
+  // Login Activity
+  const logEl = document.getElementById('loginActivity');
+  if (logEl) {
+    logEl.innerHTML = `
+      <div class="activity-item">
+        <div class="ai-dot success"></div>
+        <div class="ai-content">
+          <div class="ai-action">Current Session Active</div>
+          <div class="ai-meta">Authenticated as ${session.username}</div>
+        </div>
+        <div class="ai-time">Now</div>
+      </div>`;
+  }
+
+  // Change Password
+  document.getElementById('changePasswordForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const current = document.getElementById('currentPw').value;
+    const newPw = document.getElementById('newPw').value;
+    const confirm = document.getElementById('confirmPw').value;
+
+    if (!current) {
+      Toast.show('Please enter your current password.', 'warning'); return;
+    }
+    if (newPw.length < 6) {
+      Toast.show('New password must be at least 6 characters.', 'warning'); return;
+    }
+    if (newPw !== confirm) {
+      Toast.show('New passwords do not match.', 'error'); return;
+    }
+
+    const btn = e.submitter || document.querySelector('#changePasswordForm button[type=submit]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+
+    const res = await Auth.changePassword(current, newPw);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="lock"></i> Update Password'; }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    if (res.success) {
+      Toast.show(res.message || 'Password updated successfully!', 'success');
+      document.getElementById('changePasswordForm').reset();
+    } else {
+      Toast.show(res.error || 'Failed to update password.', 'error');
+    }
+  });
+
+  ['logoutBtn','logoutBtn2'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+  });
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>
+</body>
+</html>

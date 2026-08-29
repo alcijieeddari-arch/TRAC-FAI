@@ -1,0 +1,444 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trac-Fai E-Voting System | Secure Online Elections</title>
+  <meta name="description"
+    content="A secure, modern, and transparent electronic voting platform designed for Trac-Fai faculty and organizational elections." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon">
+          <img src="img/logo.png" alt="Trac-Fai Official Logo" />
+        </div>
+        <span class="logo-text">Trac-Fai <span class="logo-accent">Vote</span></span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#elections" class="nav-link">Elections</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <button class="nav-close-btn" id="navCloseBtn" aria-label="Close menu"><i data-lucide="x"></i> Close</button>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-theme-toggle" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings" style="font-size:1.1rem; display:inline-flex; align-items:center; justify-content:center;"><i data-lucide="sliders-horizontal"></i></button>
+        <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+        <a href="login.html" class="btn-outline">Login</a>
+        <a href="login.html" class="btn-primary">Vote Now</a>
+        <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+          </svg>
+          Secure E-Voting Platform 2025
+        </div>
+        <h1 class="hero-title">
+          Your Voice,<br />
+          <span class="gradient-text">Your Vote,</span><br />
+          Your Future.
+        </h1>
+        <p class="hero-subtitle">
+          A transparent, secure, and modern electronic voting system designed exclusively
+          for Trac-Fai faculty and organizational elections. Cast your vote from anywhere, anytime.
+        </p>
+        <div class="hero-actions">
+          <a href="login.html" class="btn-primary btn-lg" id="voteNowBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Cast Your Vote
+          </a>
+          <a href="#about" class="btn-ghost btn-lg">
+            Learn More
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-number" data-target="1247">0</span>
+            <span class="stat-label">Registered Voters</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card">
+            <span class="stat-number" data-target="24">0</span>
+            <span class="stat-label">Candidates</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-card">
+            <span class="stat-number" data-target="98">0</span>
+            <span class="stat-label">% Uptime</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="voting-card floating">
+          <div class="vc-header">
+            <div class="vc-avatar">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <div>
+              <div class="vc-name">Dr. Maria Santos</div>
+              <div class="vc-pos">President • Progressive Party</div>
+            </div>
+          </div>
+          <div class="vc-votes">
+            <div class="vc-bar-label"><span>Votes</span><span class="vc-pct">68%</span></div>
+            <div class="vc-bar">
+              <div class="vc-bar-fill" style="width: 68%"></div>
+            </div>
+          </div>
+          <div class="vc-footer">
+            <span class="vc-count">847 votes</span>
+            <span class="vc-badge live">● LIVE</span>
+          </div>
+        </div>
+        <div class="election-status-card floating-delayed">
+          <div class="es-icon"><i data-lucide="check-square"></i></div>
+          <div class="es-info">
+            <div class="es-title" id="heroElectionTitle">AY 2025–2026 Election</div>
+            <div class="es-status" id="heroElectionStatus">Loading...</div>
+          </div>
+          <div class="es-timer">
+            <div class="timer-label">Ends In</div>
+            <div class="timer-value" id="heroTimer">--:--:--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Active Election Banner (dynamically updated by landing.js) -->
+  <section class="election-banner" id="elections">
+    <div class="banner-container" id="electionBanner">
+      <div class="banner-icon">📣</div>
+      <div class="banner-text" id="bannerText">
+        <strong>No active election at this time.</strong>
+        <span class="banner-deadline">Check back later for upcoming elections.</span>
+      </div>
+      <a href="login.html" class="btn-primary btn-sm" id="bannerVoteBtn" style="display:none;">Vote Now →</a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section" id="about">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">About The System</span>
+        <h2 class="section-title">Designed for Trust & Transparency</h2>
+        <p class="section-subtitle">
+          The Trac-Fai E-Voting System is built to modernize organizational elections
+          with security, fairness, and accessibility at its core.
+        </p>
+      </div>
+      <div class="about-grid">
+        <div class="about-visual">
+          <div class="about-card-main">
+            <div class="acm-header">
+              <div class="acm-icon"><i data-lucide="shield"></i></div>
+              <h3>Bank-Level Security</h3>
+            </div>
+            <p>Your vote is encrypted and anonymized. Even system administrators cannot see who you voted for — only
+              that you voted.</p>
+            <div class="security-badges">
+              <span class="sec-badge"><i data-lucide="lock"></i> AES-256 Encrypted</span>
+              <span class="sec-badge"><i data-lucide="key-round" style="width:12px;height:12px;vertical-align:middle;margin-right:3px;"></i>JWT Auth</span>
+              <span class="sec-badge"><i data-lucide="check-circle-2"></i> Vote Verified</span>
+            </div>
+          </div>
+          <div class="about-card-secondary">
+            <div class="acs-icon"><i data-lucide="bar-chart-2"></i></div>
+            <div class="acs-text">
+              <div class="acs-title">Real-Time Results</div>
+              <div class="acs-sub">Live vote tally as ballots are cast</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-content">
+          <div class="about-points">
+            <div class="about-point">
+              <div class="ap-icon"><i data-lucide="target"></i></div>
+              <div class="ap-text">
+                <h4>One Person, One Vote</h4>
+                <p>Our system ensures each registered voter can only cast one vote per election, preventing fraud and
+                  ensuring fairness.</p>
+              </div>
+            </div>
+            <div class="about-point">
+              <div class="ap-icon"><i data-lucide="smartphone"></i></div>
+              <div class="ap-text">
+                <h4>Vote From Anywhere</h4>
+                <p>Access the voting platform from your phone, tablet, or computer. Fully responsive and mobile-friendly
+                  interface.</p>
+              </div>
+            </div>
+            <div class="about-point">
+              <div class="ap-icon"><i data-lucide="zap"></i></div>
+              <div class="ap-text">
+                <h4>Instant Results</h4>
+                <p>Votes are counted automatically in real-time. Results are available immediately after polls close.
+                </p>
+              </div>
+            </div>
+            <div class="about-point">
+              <div class="ap-icon"><i data-lucide="clipboard-list"></i></div>
+              <div class="ap-text">
+                <h4>Full Audit Trail</h4>
+                <p>Complete activity logs and audit trails ensure accountability and allow post-election verification.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Platform Features</span>
+        <h2 class="section-title">Everything You Need for a Fair Election</h2>
+        <p class="section-subtitle">Powerful tools for both voters and election administrators.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card feature-card-lg">
+          <div class="fc-icon"><i data-lucide="check-square"></i></div>
+          <h3>Smart Ballot</h3>
+          <p>Intuitive voting interface with candidate profiles, photos, and party information. Confirmation dialog
+            before final submission.</p>
+          <div class="fc-tags">
+            <span>One-Click Vote</span>
+            <span>Confirmation Modal</span>
+            <span>Anti-Duplicate</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon"><i data-lucide="bar-chart-2"></i></div>
+          <h3>Live Dashboard</h3>
+          <p>Real-time analytics and vote counts visible to authorized administrators.</p>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon"><i data-lucide="lock"></i></div>
+          <h3>Secure Auth</h3>
+          <p>Role-based access control with JWT tokens and encrypted sessions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon"><i data-lucide="users"></i></div>
+          <h3>Voter Management</h3>
+          <p>Easy voter registration, profile management, and eligibility verification.</p>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon"><i data-lucide="trophy"></i></div>
+          <h3>Candidate Profiles</h3>
+          <p>Rich candidate profiles with photos, platform, party affiliation, and bio.</p>
+        </div>
+        <div class="feature-card feature-card-lg">
+          <div class="fc-icon"><i data-lucide="file-text"></i></div>
+          <h3>Report Generation</h3>
+          <p>Export election results to PDF or CSV for official records and archiving. Comprehensive tabulation reports
+            with charts.</p>
+          <div class="fc-tags">
+            <span>PDF Export</span>
+            <span>CSV Export</span>
+            <span>Charts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">How It Works</span>
+        <h2 class="section-title">Cast Your Vote in 3 Simple Steps</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon"><i data-lucide="key-round"></i></div>
+          <h3>Login Securely</h3>
+          <p>Access your voter account using your official Trac-Fai credentials. Your identity is verified before you
+            can vote.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon"><i data-lucide="check-square"></i></div>
+          <h3>Choose Your Candidates</h3>
+          <p>Browse candidate profiles and select your preferred candidates for each available position.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon"><i data-lucide="check-circle-2"></i></div>
+          <h3>Submit & Confirm</h3>
+          <p>Review your selections, confirm your ballot, and receive your unique vote receipt for verification.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section" id="contact">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Get In Touch</span>
+        <h2 class="section-title">Contact & Support</h2>
+        <p class="section-subtitle">Have questions or issues? Our election committee is here to help.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="ci-icon"><i data-lucide="mail"></i></div>
+            <div class="ci-text">
+              <div class="ci-label">Email Support</div>
+              <div class="ci-value">vote@trac-fai.edu.ph</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i data-lucide="phone"></i></div>
+            <div class="ci-text">
+              <div class="ci-label">Hotline</div>
+              <div class="ci-value">+63 912 345 6789</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i data-lucide="map-pin"></i></div>
+            <div class="ci-text">
+              <div class="ci-label">Office</div>
+              <div class="ci-value">Election Committee Office, Trac-Fai Campus</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i data-lucide="clock"></i></div>
+            <div class="ci-text">
+              <div class="ci-label">Support Hours</div>
+              <div class="ci-value">Mon–Fri, 8:00 AM – 5:00 PM</div>
+            </div>
+          </div>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <div class="form-group">
+            <label for="contactName">Full Name</label>
+            <input type="text" id="contactName" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label for="contactEmail">Email Address</label>
+            <input type="email" id="contactEmail" placeholder="your@email.com" required />
+          </div>
+          <div class="form-group">
+            <label for="contactMessage">Message</label>
+            <textarea id="contactMessage" rows="4" placeholder="Describe your concern or inquiry..."
+              required></textarea>
+          </div>
+          <button type="submit" class="btn-primary btn-full">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="logo-icon">
+            <img src="img/logo.png" alt="Trac-Fai Official Logo" />
+          </div>
+          <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+        </div>
+        <p>Secure, transparent, and modern electronic voting for Trac-Fai organizational elections.</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="Facebook">fb</a>
+          <a href="#" class="social-link" aria-label="Email">@</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <a href="login.html">Voter Login</a>
+          <a href="login.html?role=admin">Admin Panel</a>
+          <a href="#features">Features</a>
+        </div>
+        <div class="footer-col">
+          <h4>Information</h4>
+          <a href="#about">About System</a>
+          <a href="#elections">Elections</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Security</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Trac-Fai E-Voting System. All rights reserved. Built for secure organizational elections.</p>
+      <div class="footer-badges">
+        <span><i data-lucide="lock"></i> SSL Secured</span>
+        <span><i data-lucide="check-circle-2"></i> Fair Elections</span>
+      </div>
+    </div>
+  </footer>  <script src="js/api.js"></script>
+
+  <script src="js/main.js"></script>
+  <script src="js/landing.js"></script>
+</body>
+
+</html>

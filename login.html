@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Trac-Fai E-Voting System</title>
+  <meta name="description" content="Securely log in to the Trac-Fai electronic voting platform." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/login.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+<body>
+  <div class="login-page">
+
+    <!-- Left Visual Panel -->
+    <div class="login-visual">
+      <div class="lv-bg">
+        <div class="lv-orb lv-orb-1"></div>
+        <div class="lv-orb lv-orb-2"></div>
+        <div class="lv-grid"></div>
+      </div>
+      <div class="lv-content">
+        <div class="lv-logo">
+          <div class="logo-icon">
+            <img src="img/logo.png" alt="Trac-Fai Logo" />
+          </div>
+          <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+        </div>
+        <div class="lv-hero-icon" style="margin-bottom:1.5rem;">
+          <img src="img/logo.png" alt="Trac-Fai Seal" style="width:108px; height:108px; border-radius:50%; object-fit:contain; filter:drop-shadow(0 4px 14px rgba(0,0,0,0.25));" />
+        </div>
+        <h2>Secure Online<br/>Voting Platform</h2>
+        <p>Exercise your right to vote from anywhere. Your ballot is private, secure, and counted instantly.</p>
+        <div class="lv-badges">
+          <div class="lv-badge-item">
+            <span><i data-lucide="lock"></i></span>
+            <span>End-to-end encrypted votes</span>
+          </div>
+          <div class="lv-badge-item">
+            <span><i data-lucide="check-circle-2"></i></span>
+            <span>One person, one vote guarantee</span>
+          </div>
+          <div class="lv-badge-item">
+            <span><i data-lucide="bar-chart-2"></i></span>
+            <span>Real-time result tabulation</span>
+          </div>
+          <div class="lv-badge-item">
+            <span><i data-lucide="shield"></i></span>
+            <span>Audit trail for every action</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="login-form-panel">
+      <div class="login-form-box">
+
+        <!-- Header -->
+        <div class="lfb-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <a href="index.html" class="lfb-back">← Back to Home</a>
+            <h1 style="margin-top:0.25rem;">Welcome Back</h1>
+            <p>Sign in to access the Trac-Fai E-Voting System</p>
+          </div>
+          <div style="display:flex; gap:0.4rem; margin-top:0.25rem;">
+            <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+            <button class="btn-theme-toggle topbar-btn" id="themeToggle" title="Toggle Theme"><i data-lucide="palette"></i></button>
+          </div>
+        </div>
+
+        <!-- Error: Wrong credentials -->
+        <div class="login-error" id="loginError">
+          <span><i data-lucide="alert-triangle"></i></span>
+          <span id="loginErrorMsg">Invalid username/email or password.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form class="login-form" id="loginForm" novalidate>
+          <div class="form-group">
+            <label for="loginUsername">Username, Email, or Employee ID</label>
+            <input type="text" id="loginUsername" placeholder="e.g. admin, juandc, or FAC-0042" required autocomplete="username" />
+          </div>
+
+          <div class="form-group">
+            <div class="form-row">
+              <label for="loginPassword">Password</label>
+              <a href="#" class="form-link" id="forgotPasswordLink">Forgot password?</a>
+            </div>
+            <div class="password-field">
+              <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password" />
+              <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password">
+                <span class="show-pw"><i data-lucide="eye"></i></span>
+                <span class="hide-pw" style="display:none"><i data-lucide="eye-off"></i></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="remember-me">
+              <input type="checkbox" id="rememberMe" />
+              Remember me for 30 days
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary btn-full" id="loginBtn">
+            <span id="loginBtnText">Sign In</span>
+            <span id="loginBtnLoader" style="display:none">Signing in...</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i data-lucide="key-round"></i> Reset Password</h3>
+        <button class="modal-close" data-modal-close><i data-lucide="x"></i></button>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+        Enter your registered email address and we'll send you a password reset link.
+      </p>
+      <form id="forgotForm">
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label for="forgotEmail">Email Address</label>
+          <input type="email" id="forgotEmail" placeholder="your@trac-fai.edu.ph" required />
+        </div>
+        <button type="submit" class="btn-primary btn-full">Send Reset Link</button>
+      </form>
+    </div>
+  </div>  <script src="js/api.js"></script>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // Redirect if already logged in
+      const session = Auth.getSession();
+      if (session) {
+        window.location.href = session.role === 'admin' ? 'admin-dashboard.html' : 'voter-dashboard.html';
+        return;
+      }
+
+      // Clear errors when the user types
+      ['loginUsername', 'loginPassword'].forEach(id => {
+        document.getElementById(id).addEventListener('input', clearErrors);
+      });
+
+      // Password visibility toggle
+      const pwToggle = document.getElementById('passwordToggle');
+      const pwInput  = document.getElementById('loginPassword');
+      pwToggle.addEventListener('click', () => {
+        const hidden = pwInput.type === 'password';
+        pwInput.type = hidden ? 'text' : 'password';
+        pwToggle.querySelector('.show-pw').style.display = hidden ? 'none' : '';
+        pwToggle.querySelector('.hide-pw').style.display = hidden ? ''    : 'none';
+      });
+
+      // ── Sign In ──
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearErrors();
+
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const btn      = document.getElementById('loginBtn');
+
+        if (!username || !password) {
+          showError('Please enter your username/email and password.');
+          return;
+        }
+
+        // Loading state
+        document.getElementById('loginBtnText').style.display = 'none';
+        document.getElementById('loginBtnLoader').style.display = '';
+        btn.disabled = true;
+
+        const result = await Auth.login(username, password);
+
+        document.getElementById('loginBtnText').style.display = '';
+        document.getElementById('loginBtnLoader').style.display = 'none';
+        btn.disabled = false;
+
+        if (result.success) {
+          // Redirect based on actual role in database
+          const dest = result.user.role === 'admin' ? 'admin-dashboard.html' : 'voter-dashboard.html';
+          window.location.href = dest;
+        } else {
+          // Wrong credentials or status check error
+          showError(result.error);
+          document.getElementById('loginPassword').value = '';
+        }
+      });
+
+      // Forgot password
+      document.getElementById('forgotPasswordLink').addEventListener('click', e => {
+        e.preventDefault();
+        Modal.open('forgotPasswordModal');
+      });
+
+      document.getElementById('forgotForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const email = document.getElementById('forgotEmail').value;
+        Modal.close('forgotPasswordModal');
+        Toast.show(`If "${email}" is registered, a reset link will be sent.`, 'info', 5000);
+        document.getElementById('forgotForm').reset();
+      });
+    });
+
+    function showError(msg) {
+      document.getElementById('loginErrorMsg').textContent = msg;
+      document.getElementById('loginError').classList.add('show');
+    }
+
+    function clearErrors() {
+      document.getElementById('loginError').classList.remove('show');
+    }
+  </script>
+</body>
+</html>

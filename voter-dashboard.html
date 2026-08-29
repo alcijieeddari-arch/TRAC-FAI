@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voter Dashboard | Trac-Fai E-Voting System</title>
+  <meta name="description" content="Cast your vote and view election status on the Trac-Fai E-Voting voter dashboard." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <img src="img/logo.png" alt="Trac-Fai Logo" />
+        </div>
+        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <a href="voter-dashboard.html" class="sidebar-link active" id="nav-dashboard">
+        <span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard
+      </a>
+      <a href="voter-vote.html" class="sidebar-link" id="nav-vote">
+        <span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Cast My Vote
+      </a>
+      <a href="voter-results.html" class="sidebar-link" id="nav-results">
+        <span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Election Results
+      </a>
+      <div class="nav-section-label">Account</div>
+      <a href="voter-profile.html" class="sidebar-link" id="nav-profile">
+        <span class="sidebar-link-icon"><i data-lucide="user"></i></span> My Profile
+      </a>
+      <a href="#" class="sidebar-link" id="logoutBtn">
+        <span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="su-avatar" id="sidebarAvatar">JD</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebarName">Loading...</div>
+          <div class="su-role">Faculty Voter</div>
+        </div>
+        <button class="su-logout" id="logoutBtn2" title="Logout"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+      <div class="topbar-breadcrumb">
+        <div class="breadcrumb-page">Voter Dashboard</div>
+        <div class="breadcrumb-sub">Overview & Election Status</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+        <button class="btn-theme-toggle topbar-btn" id="themeToggle" aria-label="Toggle theme">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div style="position:relative;">
+          <button class="topbar-btn" id="notifBtn">
+            <i data-lucide="bell"></i>
+            <span class="topbar-notif-dot" id="voterNotifDot"></span>
+          </button>
+          <div id="voterNotifDropdown" style="display:none; position:absolute; right:0; top:110%; width:300px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0; z-index:100; max-height:320px; overflow-y:auto;">
+            <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:0.85rem;"><i data-lucide="bell"></i> Notifications</div>
+            <div id="voterNotifList" style="padding:0.5rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Voter Profile Card -->
+      <div class="voter-profile-card" id="voterProfileCard">
+        <div class="vpc-avatar" id="profileAvatar">JD</div>
+        <div class="vpc-info">
+          <div class="vpc-name" id="profileName">Loading...</div>
+          <div class="vpc-id" id="profileId">Employee ID: —</div>
+          <div class="vpc-details">
+            <div class="vpc-detail">
+              <div class="vpc-detail-label">Department</div>
+              <div id="profileDept">—</div>
+            </div>
+            <div class="vpc-detail">
+              <div class="vpc-detail-label">Email</div>
+              <div id="profileEmail">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="vpc-status">
+          <span class="badge badge-success" id="voteStatusBadge"><i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Active Voter</span>
+          <a href="voter-vote.html" class="btn-primary btn-sm" id="castVoteBtn"><i data-lucide="check-square"></i> Cast Vote</a>
+        </div>
+      </div>
+
+      <!-- Active Election Info -->
+      <div class="election-info-card" id="electionInfoCard">
+        <div class="eic-icon"><i data-lucide="check-square"></i></div>
+        <div class="eic-info">
+          <div class="eic-title" id="eicTitle">No Active Election</div>
+          <div class="eic-sub" id="eicSub">Check back later for upcoming elections</div>
+        </div>
+        <div class="eic-timer">
+          <div class="eic-timer-label">Time Remaining</div>
+          <div class="eic-timer-value" id="eicTimer">—</div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);" id="voterStats">
+        <div class="stat-widget blue">
+          <div class="sw-header">
+            <div class="sw-icon blue"><i data-lucide="check-square"></i></div>
+          </div>
+          <div class="sw-value" id="statVoteStatus">—</div>
+          <div class="sw-label">Vote Status</div>
+        </div>
+        <div class="stat-widget purple">
+          <div class="sw-header">
+            <div class="sw-icon purple"><i data-lucide="users"></i></div>
+          </div>
+          <div class="sw-value" id="statTotalCandidates">0</div>
+          <div class="sw-label">Total Candidates</div>
+        </div>
+        <div class="stat-widget green">
+          <div class="sw-header">
+            <div class="sw-icon green"><i data-lucide="trophy"></i></div>
+          </div>
+          <div class="sw-value" id="statPositions">0</div>
+          <div class="sw-label">Positions</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+        <!-- Election Status -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <span class="widget-title"><i data-lucide="calendar-days"></i> Current Elections</span>
+            <a href="voter-results.html" class="widget-action">View Results <i data-lucide="arrow-right"></i></a>
+          </div>
+          <div class="widget-body">
+            <div id="electionsListVoter">
+              <div style="text-align:center; padding: 2rem; color: var(--text-muted);">Loading elections...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions + Activity -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <!-- Quick Actions -->
+          <div class="widget-card">
+            <div class="widget-header">
+              <span class="widget-title"><i data-lucide="zap"></i> Quick Actions</span>
+            </div>
+            <div class="widget-body" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <a href="voter-vote.html" class="btn-primary btn-full" id="quickVoteBtn"><i data-lucide="check-square"></i> Cast My Vote</a>
+              <a href="voter-results.html" class="btn-outline btn-full" style="text-align:center;"><i data-lucide="bar-chart-2"></i> View Results</a>
+              <a href="voter-profile.html" class="btn-ghost btn-full" style="text-align:center;">👤 My Profile</a>
+            </div>
+          </div>
+
+          <!-- Vote Receipt -->
+          <div class="widget-card" id="receiptWidget" style="display:none;">
+            <div class="widget-header">
+              <span class="widget-title"><i data-lucide="receipt"></i> Your Vote Receipt</span>
+            </div>
+            <div class="widget-body">
+              <div class="vs-receipt">
+                <div class="vsr-label">Receipt Code</div>
+                <div class="vsr-code" id="receiptCode">—</div>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Keep this code for verification. Your vote is anonymous.</div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="widget-card">
+            <div class="widget-header">
+              <span class="widget-title"><i data-lucide="clock"></i> Recent Activity</span>
+            </div>
+            <div class="widget-body">
+              <div class="activity-log" id="voterActivityLog">
+                <div style="color: var(--text-muted); font-size: 0.84rem;">No recent activity.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>  <script src="js/api.js"></script>
+
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const session = Auth.requireAuth('voter');
+  if (!session) return;
+
+  // Populate profile
+  const initials = session.name.split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
+  const photoUrl = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
+  if (photoUrl) {
+    const src = photoUrl.startsWith('http') || photoUrl.startsWith('data:') ? photoUrl : '/uploads/' + photoUrl;
+    document.getElementById('profileAvatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    document.getElementById('sidebarAvatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    document.getElementById('sidebarAvatar').style.padding = '0';
+  } else {
+    document.getElementById('profileAvatar').textContent = initials;
+    document.getElementById('sidebarAvatar').textContent = initials;
+  }
+  document.getElementById('profileName').textContent = session.name;
+  document.getElementById('sidebarName').textContent = session.name;
+  document.getElementById('profileId').textContent = 'Employee ID: ' + (session.employeeId || 'FAC-' + session.id.toString().padStart(4,'0'));
+  document.getElementById('profileDept').textContent = session.department || 'Unassigned';
+  document.getElementById('profileEmail').textContent = session.email || '—';
+
+  // Load data from backend
+  const [elections, candidates] = await Promise.all([
+    ElectionDB.fetchElections(),
+    ElectionDB.fetchCandidates()
+  ]);
+
+  const activeElection = elections.find(e => e.status === 'ongoing');
+  let hasVoted = false, myReceiptCode = null, totalVoted = 0;
+
+  if (activeElection) {
+    const [voteStatus, resultsData] = await Promise.all([
+      ElectionDB.hasVotedAsync(activeElection.id),
+      ElectionDB.getResults(activeElection.id)
+    ]);
+    hasVoted = voteStatus.hasVoted;
+    myReceiptCode = voteStatus.receiptCode;
+    totalVoted = resultsData.totalVotes || 0;
+  }
+
+  // Stats
+  document.getElementById('statVoteStatus').textContent = hasVoted ? 'Voted ✓' : 'Not Voted';
+  document.getElementById('statTotalCandidates').textContent = candidates.filter(c => c.electionId === activeElection?.id).length;
+  document.getElementById('statPositions').textContent = activeElection ? (activeElection.positions || []).length : 0;
+
+  // Vote badge
+  if (hasVoted) {
+    document.getElementById('voteStatusBadge').className = 'badge badge-success';
+    document.getElementById('voteStatusBadge').innerHTML = '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i> Voted';
+    document.getElementById('castVoteBtn').innerHTML = '<i data-lucide="bar-chart-2"></i> View Results';
+    document.getElementById('castVoteBtn').href = 'voter-results.html';
+    document.getElementById('quickVoteBtn').innerHTML = '<i data-lucide="bar-chart-2"></i> View Results';
+    document.getElementById('quickVoteBtn').href = 'voter-results.html';
+
+    if (myReceiptCode) {
+      document.getElementById('receiptWidget').style.display = '';
+      document.getElementById('receiptCode').textContent = myReceiptCode;
+    }
+  } else {
+    document.getElementById('voteStatusBadge').className = 'badge badge-warning';
+    document.getElementById('voteStatusBadge').innerHTML = '<i data-lucide="clock" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i> Not Voted';
+    document.getElementById('castVoteBtn').innerHTML = '<i data-lucide="check-square"></i> Cast Your Vote';
+    document.getElementById('castVoteBtn').href = 'voter-vote.html';
+    document.getElementById('quickVoteBtn').innerHTML = '<i data-lucide="check-square"></i> Cast My Vote';
+    document.getElementById('quickVoteBtn').href = 'voter-vote.html';
+    document.getElementById('receiptWidget').style.display = 'none';
+  }
+
+  // Election Info Card
+  if (activeElection) {
+    document.getElementById('eicTitle').textContent = activeElection.title;
+    document.getElementById('eicSub').textContent = `Ends: ${Utils.formatDate(activeElection.endDate)}`;
+    const timerEl = document.getElementById('eicTimer');
+    const updateTimer = () => { timerEl.textContent = Utils.countdown(activeElection.endDate); };
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
+
+  // Elections List
+  const listEl = document.getElementById('electionsListVoter');
+  if (elections.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted)">No elections available.</div>';
+  } else {
+    // Check voted status for each election
+    const votedMap = {};
+    await Promise.all(elections.map(async e => {
+      const vs = await ElectionDB.hasVotedAsync(e.id);
+      votedMap[e.id] = vs.hasVoted;
+    }));
+
+    listEl.innerHTML = elections.map((e, idx) => {
+      const statusClass = e.status === 'ongoing' ? 'badge-success' : e.status === 'upcoming' ? 'badge-warning' : 'badge-muted';
+      const statusText = e.status === 'ongoing' ? '<i data-lucide="circle" style="width:9px;height:9px;fill:currentColor;stroke:none;margin-right:3px;"></i>Ongoing' : e.status === 'upcoming' ? '<i data-lucide="clock" style="width:11px;height:11px;margin-right:3px;"></i>Upcoming' : '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Closed';
+      const voted = votedMap[e.id] || false;
+      const pct = e.id === activeElection?.id ? Utils.percent(totalVoted, e.totalVoters) : 0;
+      const isLast = idx === elections.length - 1;
+      return `
+        <div style="padding: 1.15rem; background: var(--bg-surface); border-radius: var(--radius-md); ${isLast ? 'margin-bottom: 0;' : 'margin-bottom: 0.85rem;'} border: 1px solid var(--border);">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom: 0.75rem;">
+            <div style="flex:1; min-width:200px;">
+              <div style="font-weight:700; font-size:0.95rem; margin-bottom:3px; color:var(--text-primary);">${e.title}</div>
+              <div style="font-size:0.76rem; color:var(--text-muted);">${(e.positions||[]).length} positions • ${Utils.formatDate(e.startDate)} – ${Utils.formatDate(e.endDate)}</div>
+            </div>
+            <span class="badge ${statusClass}">${statusText}</span>
+          </div>
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+            ${(e.positions||[]).map(p => `<span style="font-size:0.7rem; padding:2px 7px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-secondary); font-weight:500;">${p}</span>`).join('')}
+          </div>
+          <div style="margin-bottom:0.75rem; padding:0.6rem 0.75rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:0.35rem;">
+              <span style="font-weight:600;">Voter Turnout</span>
+              <span style="font-weight:700; color:var(--primary);">${e.id === activeElection?.id ? totalVoted : '—'} / ${e.totalVoters} (${pct}%)</span>
+            </div>
+            <div class="vc-bar" style="height:6px;"><div class="vc-bar-fill" style="width:${pct}%"></div></div>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            ${e.status === 'ongoing' ? `<a href="${voted ? 'voter-results.html' : 'voter-vote.html'}" class="btn-primary btn-sm">${voted ? '<i data-lucide="bar-chart-2"></i> View Results' : '<i data-lucide="check-square"></i> Cast Vote'}</a>` : ''}
+            ${e.status === 'closed' ? '<a href="voter-results.html" class="btn-outline btn-sm"><i data-lucide="bar-chart-2"></i> See Results</a>' : ''}
+            ${voted ? '<span class="badge badge-success"><i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>You Voted</span>' : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Activity Log — just show generic info since audit is admin-only
+  const logEl = document.getElementById('voterActivityLog');
+  if (logEl) {
+    logEl.innerHTML = `<div class="activity-item">
+      <div class="ai-dot primary"></div>
+      <div class="ai-content"><div class="ai-action">Logged in as ${session.name}</div><div class="ai-meta">${session.department}</div></div>
+      <div class="ai-time">Now</div>
+    </div>`;
+  }
+
+  // Logout
+  ['logoutBtn', 'logoutBtn2'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+  });
+
+  // Notification bell
+  const notifBtn = document.getElementById('notifBtn');
+  notifBtn?.addEventListener('click', function() {
+    const dd = document.getElementById('voterNotifDropdown');
+    const isOpen = dd.style.display !== 'none';
+    dd.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) {
+      const items = [];
+      if (activeElection) {
+        if (hasVoted) {
+          items.push({icon: '<i data-lucide="check-circle-2"></i>', text: 'You have successfully voted!', sub: 'Your vote is securely recorded.'});
+        } else {
+          items.push({icon: '<i data-lucide="check-square"></i>', text: `Election "${activeElection.title}" is ongoing!`, sub: 'Cast your vote now before the deadline.'});
+        }
+        items.push({icon: '<i data-lucide="alarm-clock"></i>', text: `Voting ends: ${Utils.formatDate(activeElection.endDate)}`, sub: 'Time remaining: ' + Utils.countdown(activeElection.endDate)});
+      } else {
+        items.push({icon: '<i data-lucide="mail-open"></i>', text: 'No active elections right now.', sub: 'You will be notified when one starts.'});
+      }
+      document.getElementById('voterNotifList').innerHTML = items.map(n => `
+        <div style="padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);font-size:0.82rem;display:flex;gap:0.5rem;align-items:flex-start;">
+          <span style="flex-shrink:0;">${n.icon}</span>
+          <div><div style="font-weight:500;">${n.text}</div><div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${n.sub}</div></div>
+        </div>
+      `).join('');
+      document.getElementById('voterNotifDot').style.display = 'none';
+    }
+  });
+  document.addEventListener('click', function(e) {
+    const dd = document.getElementById('voterNotifDropdown');
+    const btn = document.getElementById('notifBtn');
+    if (dd && !dd.contains(e.target) && !btn.contains(e.target)) dd.style.display = 'none';
+  });
+
+  // Add badge to Cast Vote nav link if not yet voted
+  if (activeElection && !hasVoted) {
+    const voteLink = document.getElementById('nav-vote');
+    if (voteLink) {
+      voteLink.innerHTML += ' <span style="background:var(--danger);color:white;font-size:0.65rem;padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px;">NEW</span>';
+    }
+    document.getElementById('voterNotifDot').style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>

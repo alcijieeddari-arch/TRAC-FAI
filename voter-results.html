@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Election Results | Trac-Fai E-Voting System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+<body>
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <img src="img/logo.png" alt="Trac-Fai Logo" />
+        </div>
+        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <a href="voter-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a>
+      <a href="voter-vote.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Cast My Vote</a>
+      <a href="voter-results.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Election Results</a>
+      <div class="nav-section-label">Account</div>
+      <a href="voter-profile.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="user"></i></span> My Profile</a>
+      <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="su-avatar" id="sidebarAvatar">JD</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebarName">Loading...</div>
+          <div class="su-role">Faculty Voter</div>
+        </div>
+        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+      <div class="topbar-breadcrumb">
+        <div class="breadcrumb-page">📈 Election Results</div>
+        <div class="breadcrumb-sub">Live vote tally & standings</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+        <button class="btn-theme-toggle topbar-btn" id="themeToggle">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div id="liveIndicator" style="align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:var(--danger); display:none;">
+          <span style="animation: pulse-badge 1.5s infinite;">●</span> LIVE
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-content" id="resultsContent">
+      <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+        <div class="spinner" style="margin: 0 auto 1rem;"></div>
+        Loading results...
+      </div>
+    </div>
+  </main>
+</div>  <script src="js/api.js"></script>
+
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const session = Auth.requireAuth('voter');
+  if (!session) return;
+
+  const initials = session.name.split(' ').map(n=>n[0]).join('').substr(0,2).toUpperCase();
+  const avatarEl = document.getElementById('sidebarAvatar');
+  const photoUrl = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
+  if (photoUrl) {
+    const src = photoUrl.startsWith('http') || photoUrl.startsWith('data:') ? photoUrl : '/uploads/' + photoUrl;
+    avatarEl.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    avatarEl.style.padding = '0';
+  } else {
+    avatarEl.textContent = initials;
+  }
+  document.getElementById('sidebarName').textContent = session.name;
+
+  ['logoutBtn','logoutBtn2'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+  });
+
+  await renderResults();
+  setInterval(renderResults, 30000);
+});
+
+async function renderResults() {
+  const elections = await ElectionDB.fetchElections();
+  const content = document.getElementById('resultsContent');
+
+  if (elections.length === 0) {
+    content.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);">No elections found.</div>';
+    return;
+  }
+
+  let html = '';
+  for (const election of elections) {
+    const res = await ElectionDB.getResults(election.id);
+    const results = res.results || [];
+    const totalVoted = res.totalVotes || 0;
+    const turnoutPct = Utils.percent(totalVoted, election.totalVoters);
+
+    html += `
+      <div style="margin-bottom:2rem;">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.25rem;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            <div>
+              <h2 style="font-size:1.15rem; margin-bottom:0.25rem;">${election.title}</h2>
+              <div style="font-size:0.8rem; color:var(--text-muted);">${Utils.formatDate(election.startDate)} – ${Utils.formatDate(election.endDate)}</div>
+            </div>
+            <div style="display:flex; gap:0.75rem; align-items:center;">
+              <span class="badge ${election.status === 'ongoing' ? 'badge-success' : election.status === 'upcoming' ? 'badge-warning' : 'badge-muted'}">
+                ${election.status === 'ongoing' ? '● Live' : election.status === 'upcoming' ? '<i data-lucide="clock" style="width:11px;height:11px;margin-right:3px;"></i>Upcoming' : '✓ Final'}
+              </span>
+            </div>
+          </div>
+          <div style="margin-top:1rem; display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem;">
+            <div style="text-align:center; background:var(--bg-surface); border-radius:var(--radius-md); padding:0.75rem;">
+              <div style="font-size:1.5rem; font-weight:800; color:var(--primary-light);">${totalVoted}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Votes Cast</div>
+            </div>
+            <div style="text-align:center; background:var(--bg-surface); border-radius:var(--radius-md); padding:0.75rem;">
+              <div style="font-size:1.5rem; font-weight:800; color:var(--success);">${turnoutPct}%</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Turnout</div>
+            </div>
+            <div style="text-align:center; background:var(--bg-surface); border-radius:var(--radius-md); padding:0.75rem;">
+              <div style="font-size:1.5rem; font-weight:800; color:var(--warning);">${election.totalVoters - totalVoted}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Not Yet Voted</div>
+            </div>
+          </div>
+        </div>
+        ${renderPositionResults(election, results, totalVoted)}
+      </div>
+    `;
+  }
+
+  content.innerHTML = html;
+  Utils.animateBars();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  const hasLive = elections.some(e => e.status === 'ongoing');
+  document.getElementById('liveIndicator').style.display = hasLive ? 'flex' : 'none';
+}
+
+function renderPositionResults(election, results, totalVoted) {
+  const positions = Array.isArray(election.positions)
+    ? election.positions
+    : (election.positions || '').split(',').map(p => p.trim()).filter(Boolean);
+  let html = '';
+
+  positions.forEach(position => {
+    const positionCandidates = results
+      .filter(c => c.position === position)
+      .sort((a, b) => (b.votes || 0) - (a.votes || 0));
+
+    if (positionCandidates.length === 0) return;
+
+    const winner = positionCandidates[0];
+    const winnerVotes = winner.votes || 0;
+    const maxVotes = Math.max(...positionCandidates.map(c => c.votes || 0));
+
+    const photoSrc = winner.photoUrl || winner.photo;
+    const winnerPhoto = photoSrc
+      ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;">`
+      : `<i data-lucide="user" style="width:28px;height:28px;color:white;"></i>`;
+
+    html += `
+      <div class="result-card" style="margin-bottom:1.25rem;">
+        <div class="result-position-header">
+          <h3 style="font-size:1rem;">${position}</h3>
+          ${winnerVotes > 0 ? `<span class="badge badge-success"><i data-lucide="trophy"></i> Leader: ${winner.name}</span>` : '<span class="badge badge-muted">No votes yet</span>'}
+        </div>
+
+        ${winnerVotes > 0 ? `
+        <div class="result-winner-banner" style="margin-bottom:1rem;">
+          <div class="rwb-crown"><i data-lucide="crown" style="width:18px;height:18px;color:#f59e0b;"></i></div>
+          <div style="width:52px; height:52px; border-radius:50%; background:var(--primary); border:2px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${winnerPhoto}</div>
+          <div>
+            <div class="rwb-label"><i data-lucide="trophy"></i> Current Leader</div>
+            <div class="rwb-name">${winner.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${winner.party || 'Independent'} • ${winner.department || ''}</div>
+          </div>
+          <div class="rwb-votes">
+            <div class="rwb-count">${winnerVotes}</div>
+            <div class="rwb-pct">${winner.percentage || Utils.percent(winnerVotes, totalVoted || 1)}%</div>
+          </div>
+        </div>` : ''}
+
+        <div class="chart-bar-container">
+          ${positionCandidates.map((c, idx) => {
+            const votes = c.votes || 0;
+            const pct = c.percentage || (totalVoted > 0 ? Utils.percent(votes, totalVoted) : 0);
+            const barPct = maxVotes > 0 ? Math.round((votes / maxVotes) * 100) : 0;
+            const cPhotoSrc = c.photoUrl || c.photo;
+            const candPhoto = cPhotoSrc
+              ? `<img src="${cPhotoSrc.startsWith('http') || cPhotoSrc.startsWith('data:') ? cPhotoSrc : '/uploads/' + cPhotoSrc}" style="width:100%;height:100%;object-fit:cover;">`
+              : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
+
+            return `
+              <div class="chart-bar-row">
+                <div style="display:flex; align-items:center; gap:0.5rem; width:150px; flex-shrink:0;">
+                  <div style="width:26px; height:26px; border-radius:50%; background:var(--primary); border:1px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${candPhoto}</div>
+                  <div class="chart-bar-label" title="${c.name}" style="width:auto; flex:1;">
+                    ${idx === 0 && votes > 0 ? '<i data-lucide="trophy" style="width:14px;height:14px;color:#f59e0b;vertical-align:middle;"></i>' : idx === 1 ? '<i data-lucide="medal" style="width:14px;height:14px;color:#94a3b8;vertical-align:middle;"></i>' : idx === 2 ? '<i data-lucide="medal" style="width:14px;height:14px;color:#cd7f32;vertical-align:middle;"></i>' : ''} ${c.name}
+                  </div>
+                </div>
+                <div class="chart-bar-track">
+                  <div class="chart-bar-fill" data-width="${barPct}%" style="width:${barPct}%; background: ${idx === 0 ? 'var(--primary)' : 'rgba(99,102,241,0.35)'}"></div>
+                </div>
+                <div class="chart-bar-value">${votes}</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); width:40px; text-align:right;">${pct}%</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+  return html;
+}
+</script>
+</body>
+</html>

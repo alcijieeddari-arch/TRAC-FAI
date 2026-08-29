@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cast Vote | Trac-Fai E-Voting System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <style>
+    /* ── Abstain button ── */
+    .abstain-btn {
+      background: none;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-full);
+      padding: 0.45rem 1.35rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      font-weight: 500;
+      font-family: var(--font-main);
+    }
+    .abstain-btn:hover { border-color: var(--warning); color: var(--warning); }
+    .abstain-btn.active {
+      border-color: var(--warning);
+      color: var(--warning);
+      background: rgba(245,158,11,0.08);
+    }
+
+    /* ── Progress bar ── */
+    .ballot-progress-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ballot-progress-inner { flex: 1; }
+    .ballot-progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    /* ── Vote success ── */
+    .vs-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Candidate card selected checkmark ── */
+    .candidate-card.selected::after {
+      content: '✓';
+      position: absolute; top: 0.6rem; right: 0.6rem;
+      width: 22px; height: 22px;
+      background: var(--primary); color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+    }
+
+    /* ── Confirm modal selection row ── */
+    .confirm-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+    .confirm-row.abstain { border-color: rgba(245,158,11,0.3); }
+    .confirm-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--primary);
+      border: 1px solid var(--border);
+      overflow: hidden; display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .confirm-avatar.abstain-avatar { background: rgba(245,158,11,0.15); }
+    .confirm-info { flex: 1; }
+    .confirm-name { font-weight: 700; font-size: 0.9rem; }
+    .confirm-pos  { font-size: 0.75rem; color: var(--text-muted); }
+  </style>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+<body>
+<div class="dashboard-layout">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <img src="img/logo.png" alt="Trac-Fai Logo" />
+        </div>
+        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <a href="voter-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a>
+      <a href="voter-vote.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Cast My Vote</a>
+      <a href="voter-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Election Results</a>
+      <div class="nav-section-label">Account</div>
+      <a href="voter-profile.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="user"></i></span> My Profile</a>
+      <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="su-avatar" id="sidebarAvatar">JD</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebarName">Loading...</div>
+          <div class="su-role">Faculty Voter</div>
+        </div>
+        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+      <div class="topbar-breadcrumb">
+        <div class="breadcrumb-page"><i data-lucide="check-square"></i> Cast My Vote</div>
+        <div class="breadcrumb-sub">Select your candidates for each position</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+        <button class="btn-theme-toggle topbar-btn" id="themeToggle">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="dashboard-content" id="mainContent">
+      <!-- Rendered by JS -->
+    </div>
+  </main>
+</div>
+
+<!-- ── Vote Confirmation Modal ── -->
+<div class="modal-overlay" id="confirmVoteModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h3><i data-lucide="check-circle-2"></i> Confirm Your Ballot</h3>
+      <button class="modal-close" data-modal-close><i data-lucide="x"></i></button>
+    </div>
+    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1.25rem;">
+      Review your selections carefully. <strong>This action cannot be undone.</strong>
+    </p>
+    <div id="confirmSelectionsList" style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;"></div>
+    <div style="display:flex; gap:0.75rem;">
+      <button class="btn-outline btn-full" data-modal-close>← Change Selections</button>
+      <button class="btn-primary btn-full" id="finalSubmitBtn"><i data-lucide="check-square"></i> Submit My Vote</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Already Voted Modal ── -->
+<div class="modal-overlay" id="alreadyVotedModal">
+  <div class="modal" style="text-align:center; max-width:420px;">
+    <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="party-popper"></i></div>
+    <h3 style="margin-bottom:0.5rem;">You've Already Voted!</h3>
+    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1.25rem;">
+      Your vote has been recorded. Thank you for participating in this election.
+    </p>
+    <div class="vs-receipt" style="margin-bottom:1.5rem; text-align:left;">
+      <div class="vsr-label">Your Vote Receipt Code</div>
+      <div class="vsr-code" id="existingReceiptCode">—</div>
+    </div>
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
+      <a href="voter-results.html" class="btn-primary"><i data-lucide="bar-chart-2"></i> View Live Results</a>
+      <a href="voter-dashboard.html" class="btn-outline">← Dashboard</a>
+    </div>
+  </div>
+</div>  <script src="js/api.js"></script>
+
+<script src="js/main.js"></script>
+<script>
+'use strict';
+
+/* ─────────────────── State ─────────────────── */
+let currentSelections = {};  // { [position]: candidateId | 'ABSTAIN' }
+let activeElection    = null;
+let allElectionCandidates = [];
+let ballotPositions   = [];  // positions that have at least one candidate
+
+/* ─────────────────── Init ─────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  const session = Auth.requireAuth('voter');
+  if (!session) return;
+
+  /* ── Sidebar user info ── */
+  const initials   = session.name.split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
+  const avatarEl   = document.getElementById('sidebarAvatar');
+  const photoUrl   = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
+  if (photoUrl) {
+    const src = photoUrl.startsWith('http') || photoUrl.startsWith('data:') ? photoUrl : '/uploads/' + photoUrl;
+    avatarEl.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    avatarEl.style.padding = '0';
+  } else {
+    avatarEl.textContent = initials;
+  }
+  document.getElementById('sidebarName').textContent = session.name;
+
+  /* ── Logout buttons ── */
+  ['logoutBtn', 'logoutBtn2'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+  });
+
+  /* ── Mobile sidebar toggle ── */
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  document.getElementById('topbarMenuBtn')?.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  });
+  overlay?.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+
+  const content = document.getElementById('mainContent');
+  content.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);">Loading ballot...</div>';
+
+  try {
+    const [eData, cData] = await Promise.all([
+      ApiClient.get('/elections'),
+      ApiClient.get('/candidates')
+    ]);
+
+    const elections = eData.elections || eData || [];
+    allElectionCandidates = cData.candidates || cData || [];
+
+    if (elections.length === 0) {
+      content.innerHTML = `
+        <div style="text-align:center; padding:4rem 2rem;">
+          <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="inbox" style="width:48px;height:48px;opacity:0.4;"></i></div>
+          <h2 style="margin-bottom:0.5rem;">No Active Elections</h2>
+          <p style="color:var(--text-muted); margin-bottom:1.5rem;">There are no elections currently configured by the administrator. Check back later.</p>
+          <a href="voter-dashboard.html" class="btn-primary">← Back to Dashboard</a>
+        </div>`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      return;
+    }
+
+    // Default to the first ongoing election that has candidates, or first election with candidates, or first election
+    activeElection = elections.find(e => {
+      const candCount = allElectionCandidates.filter(c => (c.electionId == e.id || c.election_id == e.id) && c.status !== 'inactive').length;
+      return e.status === 'ongoing' && candCount > 0;
+    }) || elections.find(e => {
+      return allElectionCandidates.filter(c => (c.electionId == e.id || c.election_id == e.id) && c.status !== 'inactive').length > 0;
+    }) || elections[0];
+
+    window.switchBallotElection = async (elId) => {
+      const chosen = elections.find(e => e.id == elId);
+      if (!chosen) return;
+      activeElection = chosen;
+      currentSelections = {};
+      await loadBallotForElection(session, chosen, elections);
+    };
+
+    await loadBallotForElection(session, activeElection, elections);
+  } catch (err) {
+    content.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--danger);">Error loading ballot: ${err.message}</div>`;
+  }
+});
+
+async function loadBallotForElection(session, election, elections) {
+  const content = document.getElementById('mainContent');
+  const voteStatus = await ElectionDB.hasVotedAsync(election.id);
+
+  if (voteStatus.hasVoted) {
+    document.getElementById('existingReceiptCode').textContent = voteStatus.receiptCode || '—';
+    content.innerHTML = `
+      ${renderElectionSelectorHtml(election, elections)}
+      <div style="text-align:center; padding:3rem 2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); margin-top:1rem;">
+        <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="check-circle-2" style="width:56px;height:56px;color:var(--success);"></i></div>
+        <h2 style="margin-bottom:0.75rem;">Your Vote Has Been Recorded</h2>
+        <p style="color:var(--text-muted); margin-bottom:0.5rem;">You have already submitted your official ballot for <strong>${election.title}</strong>.</p>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem;">Receipt: <strong style="font-family:monospace; color:var(--primary); font-size:1.1rem;">${voteStatus.receiptCode || '—'}</strong></p>
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+          <a href="voter-results.html" class="btn-primary"><i data-lucide="bar-chart-2"></i> View Live Results</a>
+          <a href="voter-dashboard.html" class="btn-outline">← Dashboard</a>
+        </div>
+      </div>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+
+  renderBallot(session, election, elections);
+}
+
+function renderElectionSelectorHtml(active, elections) {
+  if (!elections || elections.length <= 1) return '';
+  return `
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <i data-lucide="layers" style="width:20px;height:20px;color:var(--primary);"></i>
+        <span style="font-weight:600; font-size:0.9rem;">Select Election:</span>
+      </div>
+      <select onchange="switchBallotElection(this.value)" style="padding:0.5rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-surface); color:var(--text-primary); font-weight:600; font-size:0.88rem; cursor:pointer;">
+        ${elections.map(e => `<option value="${e.id}" ${e.id === active.id ? 'selected' : ''}>${e.title} (${e.status.toUpperCase()})</option>`).join('')}
+      </select>
+    </div>
+  `;
+}
+
+/* ─────────────────── Render Ballot ─────────────────── */
+function renderBallot(session, election, elections = []) {
+  const candidates = allElectionCandidates.filter(c => 
+    (c.electionId == election.id || c.election_id == election.id) && c.status !== 'inactive'
+  );
+  const content = document.getElementById('mainContent');
+
+  const declaredPositions = Array.isArray(election.positions)
+    ? election.positions
+    : (election.positions || '').split(',').map(p => p.trim()).filter(Boolean);
+
+  const candidatePositions = [...new Set(candidates.map(c => (c.position || '').trim()).filter(Boolean))];
+  const allPositions = [...new Set([...declaredPositions, ...candidatePositions])];
+
+  /* Group candidates by position */
+  const byPosition = {};
+  allPositions.forEach(p => { byPosition[p] = []; });
+  candidates.forEach(c => {
+    const posKey = (c.position || '').trim();
+    if (!byPosition[posKey]) byPosition[posKey] = [];
+    byPosition[posKey].push(c);
+  });
+
+  ballotPositions = Object.keys(byPosition).filter(p => byPosition[p].length > 0);
+
+  if (ballotPositions.length === 0) {
+    content.innerHTML = `
+      ${renderElectionSelectorHtml(election, elections)}
+      <div style="text-align:center; padding:4rem 2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); margin-top:1rem;">
+        <i data-lucide="inbox" style="width:48px;height:48px;opacity:0.4;"></i>
+        <h2 style="margin:1rem 0 0.5rem;">No Candidates Added Yet</h2>
+        <p style="color:var(--text-muted); margin-bottom:1.5rem;">The election is created, but no candidates have been uploaded by the admin yet.</p>
+        <a href="voter-dashboard.html" class="btn-primary">← Back to Dashboard</a>
+      </div>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+
+  /* ── Build HTML ── */
+  let html = `
+    ${renderElectionSelectorHtml(election, elections)}
+    <!-- Election Header -->
+    <div class="election-info-card">
+      <div class="eic-icon"><i data-lucide="check-square"></i></div>
+      <div class="eic-info">
+        <div class="eic-title">${election.title}</div>
+        <div class="eic-sub">${ballotPositions.length} position${ballotPositions.length !== 1 ? 's' : ''} · Select one candidate per position · You may abstain</div>
+      </div>
+      <div class="eic-timer">
+        <div class="eic-timer-label">Ends In</div>
+        <div class="eic-timer-value" id="ballotTimer">—</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="ballot-progress-wrap">
+      <div class="ballot-progress-inner">
+        <div class="ballot-progress-labels">
+          <span>Ballot Progress</span>
+          <span id="progressText">0 / ${ballotPositions.length} completed</span>
+        </div>
+        <div class="vc-bar">
+          <div class="vc-bar-fill" id="progressBar" style="width:0%; transition:width 0.4s ease;"></div>
+        </div>
+      </div>
+      <button class="btn-primary" id="submitBallotBtn" disabled style="opacity:0.5; flex-shrink:0; white-space:nowrap;">
+        <i data-lucide="check-square"></i> Submit Ballot
+      </button>
+    </div>
+
+    <!-- Ballot Positions -->
+    <div id="ballotForm">
+  `;
+
+  ballotPositions.forEach((position, idx) => {
+    const pCandidates = byPosition[position];
+    html += `
+      <div class="position-group" id="position-group-${idx}">
+        <div class="position-label">
+          <h3>${position}</h3>
+          <span class="badge badge-primary">${pCandidates.length} Candidate${pCandidates.length !== 1 ? 's' : ''}</span>
+          <span class="badge badge-muted" id="selected-badge-${idx}" style="display:none;">✓ Selected</span>
+        </div>
+        <div class="candidates-grid">
+          ${pCandidates.map(c => {
+            const photoSrc = c.photoUrl || c.photo;
+            const photoHtml = photoSrc
+              ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">`
+              : `<i data-lucide="user" style="width:24px;height:24px;color:white;"></i>`;
+
+            return `
+              <div class="candidate-card"
+                id="candidate-${c.id}"
+                onclick="selectCandidate(${c.id}, '${escapeAttr(position)}', ${idx})"
+                role="button" tabindex="0"
+                onkeydown="if(event.key==='Enter'||event.key===' ') selectCandidate(${c.id},'${escapeAttr(position)}',${idx})"
+                aria-label="Vote for ${escapeAttr(c.name)} for ${escapeAttr(position)}">
+                <div class="cc-photo">
+                  ${photoHtml}
+                </div>
+                <div class="cc-name">${c.name}</div>
+                <div class="cc-position">${c.position}</div>
+                <div class="cc-party"><i data-lucide="building-2"></i> ${c.party || 'Independent'}</div>
+                <div class="cc-platform">${c.platform || 'No platform statement provided.'}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">📚 ${c.department || 'General'}</div>
+              </div>`;
+          }).join('')}
+        </div>
+        <!-- Abstain -->
+        <div style="text-align:center; margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--border);">
+          <button
+            class="abstain-btn"
+            id="abstain-${idx}"
+            onclick="selectAbstain('${escapeAttr(position)}', ${idx})"
+            aria-label="Abstain from ${escapeAttr(position)}">
+            ⏭️ Abstain from this position
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+    </div>
+
+    <!-- Bottom Candidate List & Selection Summary -->
+    <div class="bottom-ballot-summary" style="margin-top:2.5rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:var(--shadow-md);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+        <div>
+          <h3 style="font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;"><i data-lucide="clipboard-check" style="color:var(--primary);"></i> Official Ballot Summary</h3>
+          <p style="color:var(--text-muted); font-size:0.82rem; margin-top:2px;">Review your chosen candidate for each position before casting your official vote.</p>
+        </div>
+        <div id="bottomProgressBadge" class="badge badge-primary" style="font-size:0.85rem; padding:0.4rem 0.9rem;">
+          0 / ${ballotPositions.length} Completed
+        </div>
+      </div>
+
+      <div id="bottomCandidateSummaryList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+        <!-- Populated dynamically by updateProgress() -->
+      </div>
+
+      <div style="background:var(--bg-surface); border-radius:var(--radius-lg); padding:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border:1px dashed var(--border);">
+        <div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--text-primary);">Ready to Cast Your Vote?</div>
+          <div style="font-size:0.8rem; color:var(--text-muted);">Please double check your candidate choices above before submitting.</div>
+        </div>
+        <button class="btn-primary" id="bottomSubmitBallotBtn" disabled style="opacity:0.5; padding:0.75rem 2rem; font-size:0.95rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+          <i data-lucide="check-square"></i> Review & Submit Ballot
+        </button>
+      </div>
+    </div>
+  `;
+
+  content.innerHTML = html;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  /* ── Countdown timer ── */
+  const timerEl = document.getElementById('ballotTimer');
+  if (election.endDate) {
+    const tick = () => { timerEl.textContent = Utils.countdown(election.endDate); };
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ── Submit buttons ── */
+  document.getElementById('submitBallotBtn')?.addEventListener('click', showConfirmation);
+  document.getElementById('bottomSubmitBallotBtn')?.addEventListener('click', showConfirmation);
+
+  updateProgress();
+}
+
+/* ─────────────────── Helpers ─────────────────── */
+function escapeAttr(str) {
+  return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+/* ─────────────────── Select Candidate ─────────────────── */
+function selectCandidate(candidateId, position, positionIdx) {
+  const prev = currentSelections[position];
+
+  if (prev === 'ABSTAIN') {
+    const ab = document.getElementById('abstain-' + positionIdx);
+    if (ab) ab.classList.remove('active');
+  } else if (prev !== undefined) {
+    const prevEl = document.getElementById('candidate-' + prev);
+    if (prevEl) prevEl.classList.remove('selected');
+  }
+
+  currentSelections[position] = candidateId;
+  const el = document.getElementById('candidate-' + candidateId);
+  if (el) el.classList.add('selected');
+
+  const badge = document.getElementById('selected-badge-' + positionIdx);
+  if (badge) badge.style.display = '';
+
+  updateProgress();
+}
+
+/* ─────────────────── Abstain ─────────────────── */
+function selectAbstain(position, positionIdx) {
+  const prev = currentSelections[position];
+
+  if (prev !== undefined && prev !== 'ABSTAIN') {
+    const prevEl = document.getElementById('candidate-' + prev);
+    if (prevEl) prevEl.classList.remove('selected');
+  }
+
+  const ab = document.getElementById('abstain-' + positionIdx);
+  const badge = document.getElementById('selected-badge-' + positionIdx);
+
+  if (prev === 'ABSTAIN') {
+    delete currentSelections[position];
+    if (ab) ab.classList.remove('active');
+    if (badge) badge.style.display = 'none';
+  } else {
+    currentSelections[position] = 'ABSTAIN';
+    if (ab) ab.classList.add('active');
+    if (badge) badge.style.display = '';
+  }
+
+  updateProgress();
+}
+
+/* ─────────────────── Progress & Bottom Summary ─────────────────── */
+function updateProgress() {
+  const total  = ballotPositions.length;
+  const filled = Object.keys(currentSelections).length;
+  const pct    = total > 0 ? Math.round((filled / total) * 100) : 0;
+
+  const bar = document.getElementById('progressBar');
+  if (bar) bar.style.width = pct + '%';
+  const txt = document.getElementById('progressText');
+  if (txt) txt.textContent = `${filled} / ${total} completed`;
+
+  const bottomBadge = document.getElementById('bottomProgressBadge');
+  if (bottomBadge) {
+    bottomBadge.textContent = `${filled} / ${total} Selected`;
+    bottomBadge.className = filled === total ? 'badge badge-success' : 'badge badge-primary';
+  }
+
+  const btn1 = document.getElementById('submitBallotBtn');
+  const btn2 = document.getElementById('bottomSubmitBallotBtn');
+  const isComplete = filled === total && total > 0;
+
+  [btn1, btn2].forEach(btn => {
+    if (btn) {
+      btn.disabled = !isComplete;
+      btn.style.opacity = isComplete ? '1' : '0.5';
+    }
+  });
+
+  // Render bottom candidate cards
+  const summaryListEl = document.getElementById('bottomCandidateSummaryList');
+  if (summaryListEl) {
+    summaryListEl.innerHTML = ballotPositions.map((pos, idx) => {
+      const sel = currentSelections[pos];
+      if (!sel) {
+        return `
+          <div onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:var(--bg-surface); border:1.5px dashed var(--border); border-radius:var(--radius-lg); padding:1rem; cursor:pointer; transition:border-color 0.2s;" title="Click to choose candidate">
+            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">${pos}</div>
+            <div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.85rem;">
+              <span style="width:24px;height:24px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">⏳</span>
+              <span>Not selected yet</span>
+            </div>
+          </div>`;
+      }
+
+      if (sel === 'ABSTAIN') {
+        return `
+          <div onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:rgba(245,158,11,0.06); border:1.5px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg); padding:1rem; cursor:pointer;">
+            <div style="font-size:0.75rem; font-weight:700; color:var(--warning); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">${pos}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="width:24px;height:24px;border-radius:50%;background:rgba(245,158,11,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;">⏭️</span>
+                <span style="font-weight:600; font-size:0.88rem; color:var(--warning);">Abstained</span>
+              </div>
+              <span class="badge badge-warning" style="font-size:0.7rem;">Abstain</span>
+            </div>
+          </div>`;
+      }
+
+      const c = allElectionCandidates.find(x => x.id == sel);
+      const photoSrc = c?.photoUrl || c?.photo;
+      const photoHtml = photoSrc
+        ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
+
+      return `
+        <div onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:var(--bg-surface); border:1.5px solid var(--primary); border-radius:var(--radius-lg); padding:1rem; cursor:pointer; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">${pos}</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem; overflow:hidden;">
+              <div style="width:32px; height:32px; border-radius:50%; background:var(--primary); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${photoHtml}</div>
+              <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                <div style="font-weight:700; font-size:0.88rem; color:var(--text-primary);">${c?.name || '—'}</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">${c?.party || 'Independent'} • ${c?.department || '—'}</div>
+              </div>
+            </div>
+            <span class="badge badge-success" style="font-size:0.7rem; flex-shrink:0;">✓ Picked</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+/* ─────────────────── Show Confirmation ─────────────────── */
+function showConfirmation() {
+  const listEl = document.getElementById('confirmSelectionsList');
+
+  listEl.innerHTML = ballotPositions.map(position => {
+    const candId    = currentSelections[position];
+    const isAbstain = candId === 'ABSTAIN';
+    const c         = isAbstain ? null : allElectionCandidates.find(x => x.id == candId);
+    const photoSrc  = c?.photoUrl || c?.photo;
+    const avatarContent = isAbstain
+      ? '⏭️'
+      : (photoSrc
+          ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="${c?.name}">`
+          : `<i data-lucide="user" style="width:20px;height:20px;color:white;"></i>`);
+
+    return `
+      <div class="confirm-row ${isAbstain ? 'abstain' : ''}">
+        <div class="confirm-avatar ${isAbstain ? 'abstain-avatar' : ''}">${avatarContent}</div>
+        <div class="confirm-info">
+          <div class="confirm-name">${isAbstain ? 'Abstained' : (c?.name || '—')}</div>
+          <div class="confirm-pos">${position}${!isAbstain && c?.party ? ' · ' + c.party : ''}</div>
+        </div>
+        <span class="badge ${isAbstain ? 'badge-warning' : 'badge-success'}" style="flex-shrink:0;">
+          ${isAbstain ? '⏭️ Abstain' : '✓ Selected'}
+        </span>
+      </div>`;
+  }).join('');
+
+  Modal.open('confirmVoteModal');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  document.getElementById('finalSubmitBtn').onclick = submitVote;
+}
+
+/* ─────────────────── Submit Vote ─────────────────── */
+async function submitVote() {
+  const session = Auth.getSession();
+  if (!session) { Auth.logout(); return; }
+
+  const btn = document.getElementById('finalSubmitBtn');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    const selectionsPayload = {};
+    for (const [pos, val] of Object.entries(currentSelections)) {
+      if (val !== 'ABSTAIN') {
+        selectionsPayload[pos] = val;
+      }
+    }
+
+    const res = await ApiClient.post('/votes/cast', {
+      electionId: activeElection.id,
+      selections: selectionsPayload
+    });
+
+    Modal.close('confirmVoteModal');
+    const content = document.getElementById('mainContent');
+
+    /* Build per-position summary for receipt */
+    const receiptRows = ballotPositions.map(pos => {
+      const cid = currentSelections[pos];
+      if (cid === 'ABSTAIN') return `<tr><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#6b7280;">${pos}</td><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#f59e0b;font-weight:600;">⏭️ Abstained</td></tr>`;
+      return `<tr><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#374151;">${pos}</td><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;"><span style="font-size:0.72rem;background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:99px;font-weight:600;">Voted ✓</span></td></tr>`;
+    }).join('');
+
+    content.innerHTML = `
+      <div class="vote-success" style="margin-top:2rem;">
+        <div class="vs-icon">🎉</div>
+        <h2 class="vs-title">Vote Submitted Successfully!</h2>
+        <p class="vs-sub">Your vote has been securely recorded. Thank you for participating in the Trac-Fai faculty election.</p>
+        <div class="vs-receipt">
+          <div class="vsr-label">Your Vote Receipt Code</div>
+          <div class="vsr-code">${res.receiptCode}</div>
+        </div>
+        <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1.5rem;">
+          Save this code for your records. It proves you voted without revealing your private selections.
+        </p>
+        <div class="vs-actions">
+          <a href="voter-results.html" class="btn-primary"><i data-lucide="bar-chart-2"></i> View Live Results</a>
+          <button class="btn-outline" id="downloadReceiptBtn">📥 Print Receipt (PDF)</button>
+          <a href="voter-dashboard.html" class="btn-outline">← Dashboard</a>
+        </div>
+      </div>`;
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    document.getElementById('downloadReceiptBtn')?.addEventListener('click', () => {
+      downloadReceiptPDF(res.receiptCode, session.name, activeElection.title, receiptRows);
+    });
+
+    Toast.show('Your vote has been submitted successfully!', 'success');
+  } catch (err) {
+    btn.innerHTML = '<i data-lucide="check-square"></i> Submit My Vote';
+    btn.disabled = false;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    Toast.show(err.message || 'Submission failed. Please try again.', 'error');
+  }
+}
+
+/* ─────────────────── PDF Receipt ─────────────────── */
+function downloadReceiptPDF(receiptCode, voterName, electionTitle, receiptRows) {
+  const now = new Date().toLocaleString('en-PH', { dateStyle: 'long', timeStyle: 'medium' });
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+  <title>Vote Receipt — ${receiptCode}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f9fafb;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem;}
+    .receipt{background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(0,0,0,0.12);padding:2.5rem;max-width:520px;width:100%;position:relative;overflow:hidden;}
+    .watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:3.5rem;font-weight:900;color:rgba(13,95,48,0.04);white-space:nowrap;pointer-events:none;user-select:none;}
+    .logo{display:flex;align-items:center;gap:0.6rem;margin-bottom:1.5rem;}
+    .logo-circle{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0d5f30,#22c55e);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;font-weight:900;}
+    .logo-name{font-size:1rem;font-weight:800;color:#0d5f30;}
+    .receipt-title{font-size:1.35rem;font-weight:800;color:#111827;margin-bottom:0.2rem;}
+    .receipt-sub{font-size:0.8rem;color:#6b7280;margin-bottom:1.5rem;}
+    .code-box{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:2px solid #6ee7b7;border-radius:12px;padding:1rem 1.5rem;text-align:center;margin-bottom:1.5rem;}
+    .code-label{font-size:0.68rem;color:#065f46;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.3rem;}
+    .code-value{font-family:monospace;font-size:1.4rem;font-weight:900;color:#0d5f30;letter-spacing:3px;}
+    .info-row{display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f3f4f6;font-size:0.84rem;}
+    .info-label{color:#6b7280;}.info-val{font-weight:600;color:#111827;}
+    table{width:100%;border-collapse:collapse;margin-top:1.25rem;font-size:0.84rem;}
+    th{text-align:left;font-size:0.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:0.5rem;}
+    .footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e5e7eb;font-size:0.7rem;color:#9ca3af;text-align:center;line-height:1.7;}
+    @media print{body{background:#fff;padding:0;}.receipt{box-shadow:none;border-radius:0;}}
+  </style></head><body>
+  <div class="receipt">
+    <div class="watermark">OFFICIAL RECEIPT</div>
+    <div class="logo"><div class="logo-circle">T</div><span class="logo-name">Trac-Fai E-Vote</span></div>
+    <div class="receipt-title">Official Vote Receipt</div>
+    <div class="receipt-sub">Trac-Fai Faculty E-Voting System — Secure Ballot Confirmation</div>
+    <div class="code-box">
+      <div class="code-label">Unique Receipt Code</div>
+      <div class="code-value">${receiptCode}</div>
+    </div>
+    <div class="info-row"><span class="info-label">Voter</span><span class="info-val">${voterName}</span></div>
+    <div class="info-row"><span class="info-label">Election</span><span class="info-val">${electionTitle}</span></div>
+    <div class="info-row"><span class="info-label">Submitted On</span><span class="info-val">${now}</span></div>
+    <div class="info-row"><span class="info-label">Status</span><span class="info-val" style="color:#22c55e;">✓ Recorded</span></div>
+    <table><thead><tr><th>Position</th><th>Status</th></tr></thead><tbody>${receiptRows}</tbody></table>
+    <div class="footer">
+      This receipt confirms your participation but does not reveal your candidate choices.<br>
+      Keep this code safe — it is proof of your vote.<br>
+      Generated by Trac-Fai E-Voting System · ${new Date().getFullYear()}
+    </div>
+  </div>
+  <script>window.onload = () => { window.print(); }<\/script>
+  </body></html>`;
+
+  const win = window.open('', '_blank', 'width=640,height=840');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  } else {
+    Toast.show('Please allow popups to print the receipt.', 'warning', 5000);
+  }
+}
+</script>
+</body>
+</html>

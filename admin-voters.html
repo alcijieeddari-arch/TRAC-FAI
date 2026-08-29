@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voter Management | Trac-Fai Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+<body>
+<div class="dashboard-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">
+            <img src="img/logo.png" alt="Trac-Fai Logo" />
+          </div>
+          <span>Trac-Fai <span class="logo-accent">Admin</span></span>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Dashboard</div>
+      <a href="admin-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Overview</a>
+      <div class="nav-section-label">Elections</div>
+      <a href="admin-elections.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Manage Elections</a>
+      <a href="admin-candidates.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="users"></i></span> Candidates</a>
+      <a href="admin-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Results & Reports</a>
+      <div class="nav-section-label">Users</div>
+      <a href="admin-voters.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="user-check"></i></span> Voter Management</a>
+      <div class="nav-section-label">System</div>
+      <a href="admin-audit.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="clipboard-list"></i></span> Audit Log</a>
+      <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="su-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">AD</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebarName">Administrator</div>
+          <div class="su-role" style="color:var(--warning);"><i data-lucide="settings" style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
+        </div>
+        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+      <div class="topbar-breadcrumb">
+        <div class="breadcrumb-page"><i data-lucide="users"></i> Voter Management</div>
+        <div class="breadcrumb-sub">Manage faculty voters</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+        <div class="topbar-search">
+          <span><i data-lucide="search"></i></span>
+          <input type="text" id="searchVoter" placeholder="Search voters..." />
+        </div>
+        <button class="btn-theme-toggle topbar-btn" id="themeToggle">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="btn-outline btn-sm" onclick="exportVotersCSV()"><i data-lucide="save"></i> Export CSV</button>
+        <button class="btn-primary btn-sm" id="openAddVoter"><i data-lucide="plus"></i> Add Voter</button>
+      </div>
+    </div>
+
+    <div class="dashboard-content">
+      <!-- Stats Row -->
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;" id="voterStats">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Pending Approvals -->
+      <div class="widget-card" id="pendingSection" style="margin-bottom:1.25rem; display:none;">
+        <div class="widget-header">
+          <span class="widget-title">⏳ Pending Approvals</span>
+          <span id="pendingCount" style="font-size:0.82rem; color:var(--warning); font-weight:700;"></span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Faculty Member</th>
+                <th>Faculty ID</th>
+                <th>Department</th>
+                <th>Email</th>
+                <th>Registered</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pendingTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Voters Table -->
+      <div class="widget-card">
+        <div class="widget-header">
+          <span class="widget-title"><i data-lucide="users"></i> Registered Voters</span>
+          <span id="voterCount" style="font-size:0.82rem; color:var(--text-muted);"></span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Voter</th>
+                <th>Employee ID</th>
+                <th>Department</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Vote Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="votersTableBody">
+              <tr><td colspan="8" style="text-align:center; color:var(--text-muted);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Voter Modal -->
+<div class="modal-overlay" id="voterModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h3 id="voterModalTitle"><i data-lucide="plus"></i> Add New Voter</h3>
+      <button class="modal-close" data-modal-close><i data-lucide="x"></i></button>
+    </div>
+    <form id="voterForm" style="display:flex; flex-direction:column; gap:1rem;">
+      <input type="hidden" id="voterId" />
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="voterName">Full Name *</label>
+          <input type="text" id="voterName" placeholder="Dr. Juan Dela Cruz" required />
+        </div>
+        <div class="form-group">
+          <label for="voterEmpId">Employee ID *</label>
+          <input type="text" id="voterEmpId" placeholder="FAC-0001" required />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="voterEmail">Email Address *</label>
+          <input type="email" id="voterEmail" placeholder="juan@trac-fai.edu.ph" required />
+        </div>
+        <div class="form-group">
+          <label for="voterDept">Department</label>
+          <input type="text" id="voterDept" placeholder="Mathematics" />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="voterUsername">Username *</label>
+          <input type="text" id="voterUsername" placeholder="juandelacruz" required />
+        </div>
+        <div class="form-group">
+          <label for="voterPassword">Password *</label>
+          <input type="password" id="voterPassword" placeholder="Minimum 6 characters" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="voterStatus">Account Status</label>
+        <select id="voterStatus">
+          <option value="active"><i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Active</option>
+          <option value="inactive">✗ Inactive / Suspended</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:0.75rem; margin-top:0.5rem;">
+        <button type="button" class="btn-outline btn-full" data-modal-close>Cancel</button>
+        <button type="submit" class="btn-primary btn-full"><i data-lucide="save"></i> Save Voter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Voter Modal -->
+<div class="modal-overlay" id="deleteVoterModal">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:2.5rem; margin-bottom:1rem;"><i data-lucide="alert-triangle"></i></div>
+    <h3 style="margin-bottom:0.5rem;">Remove Voter?</h3>
+    <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
+      Remove <strong id="deleteVoterName">this voter</strong> from the system?
+    </p>
+    <div style="display:flex; gap:0.75rem;">
+      <button class="btn-outline btn-full" data-modal-close>Cancel</button>
+      <button class="btn-danger btn-full" id="confirmDeleteVoter">Remove</button>
+    </div>
+  </div>
+</div>  <script src="js/api.js"></script>
+<script src="js/main.js"></script>
+<script>
+let deletingVoterId = null;
+let editingVoterId = null;
+let votersCache = [];
+let activeElectionCache = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const session = Auth.requireAuth('admin');
+  if (!session) return;
+  document.getElementById('sidebarName').textContent = session.name;
+
+  ['logoutBtn', 'logoutBtn2'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+  });
+
+  document.getElementById('openAddVoter').addEventListener('click', () => openVoterModal());
+  document.getElementById('voterForm').addEventListener('submit', saveVoter);
+  document.getElementById('confirmDeleteVoter').addEventListener('click', deleteVoter);
+  document.getElementById('searchVoter').addEventListener('input', renderVoters);
+
+  await loadVoters();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+
+async function loadVoters() {
+  try {
+    const [vData, eData] = await Promise.all([
+      ApiClient.get('/voters'),
+      ApiClient.get('/elections')
+    ]);
+    votersCache = vData.voters || vData || [];
+    const elections = eData.elections || eData || [];
+    activeElectionCache = elections.find(e => e.status === 'ongoing') || null;
+    renderVoters();
+  } catch (err) {
+    document.getElementById('votersTableBody').innerHTML =
+      `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:2rem;">Error: ${err.message}</td></tr>`;
+  }
+}
+
+function renderVoters() {
+  const search = document.getElementById('searchVoter').value.toLowerCase();
+  let voters = votersCache.filter(u => u.role === 'voter');
+  const allVoters = votersCache.filter(u => u.role === 'voter');
+  const activeVoters = allVoters.filter(u => u.status === 'active');
+  const pendingVoters = allVoters.filter(u => u.status === 'pending');
+
+  // Stats
+  const statsEl = document.getElementById('voterStats');
+  statsEl.innerHTML = `
+    <div class="stat-widget blue">
+      <div class="sw-header"><div class="sw-icon blue"><i data-lucide="users"></i></div></div>
+      <div class="sw-value">${activeVoters.length}</div>
+      <div class="sw-label">Active Voters</div>
+    </div>
+    <div class="stat-widget green">
+      <div class="sw-header"><div class="sw-icon green"><i data-lucide="check-circle-2"></i></div></div>
+      <div class="sw-value">${activeVoters.filter(u => u.hasVoted).length}</div>
+      <div class="sw-label">Voted (Current)</div>
+    </div>
+    <div class="stat-widget purple">
+      <div class="sw-header"><div class="sw-icon purple"><i data-lucide="clock"></i></div></div>
+      <div class="sw-value" style="color:${pendingVoters.length > 0 ? 'var(--warning)' : ''}">${pendingVoters.length}</div>
+      <div class="sw-label">Pending Approval</div>
+    </div>
+    <div class="stat-widget amber">
+      <div class="sw-header"><div class="sw-icon amber"><i data-lucide="bar-chart-2"></i></div></div>
+      <div class="sw-value">${allVoters.length}</div>
+      <div class="sw-label">Total Registered</div>
+    </div>
+  `;
+
+  // Pending section
+  const pendingSection = document.getElementById('pendingSection');
+  if (pendingVoters.length > 0) {
+    pendingSection.style.display = '';
+    document.getElementById('pendingCount').textContent = pendingVoters.length + ' pending';
+    document.getElementById('pendingTableBody').innerHTML = pendingVoters.map(u => {
+      const initials = (u.name || 'U').split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
+      const photoSrc = u.photoUrl || u.photo || localStorage.getItem('tracfai_photo_' + u.id);
+      const photoHtml = photoSrc
+        ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : initials;
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--warning);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:white;flex-shrink:0;">${photoHtml}</div>
+          <div><div style="font-weight:600;font-size:0.88rem;">${u.name}</div><div style="font-size:0.72rem;color:var(--text-muted);">@${u.username}</div></div>
+        </div></td>
+        <td style="font-family:monospace;color:var(--primary-light);">${u.employeeId || '—'}</td>
+        <td style="font-size:0.82rem;">${u.department || '—'}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${u.email || '—'}</td>
+        <td style="font-size:0.78rem;color:var(--text-muted);">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-PH') : '—'}</td>
+        <td><div class="table-actions">
+          <button class="btn-icon" onclick="approveVoter(${u.id})" title="Approve" style="color:var(--success);"><i data-lucide="check-circle-2"></i></button>
+          <button class="btn-icon delete" onclick="rejectVoter(${u.id}, '${(u.name || '').replace(/'/g, "\\'")}')"><i data-lucide="x-circle"></i></button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } else {
+    pendingSection.style.display = 'none';
+  }
+
+  // Search filter
+  if (search) {
+    voters = voters.filter(u =>
+      (u.name || '').toLowerCase().includes(search) ||
+      (u.email || '').toLowerCase().includes(search) ||
+      (u.employeeId || '').toLowerCase().includes(search) ||
+      (u.department || '').toLowerCase().includes(search)
+    );
+  }
+
+  document.getElementById('voterCount').textContent = `${voters.length} voter${voters.length !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('votersTableBody');
+  if (voters.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">No voters found.</td></tr>';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+
+  tbody.innerHTML = voters.map(u => {
+    const initials = (u.name || 'U').split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
+    const photoSrc = u.photoUrl || u.photo || localStorage.getItem('tracfai_photo_' + u.id);
+    const photoHtml = photoSrc
+      ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : initials;
+    const hasVoted = u.hasVoted || false;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--gradient-primary);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:white;flex-shrink:0;">${photoHtml}</div>
+        <div style="font-weight:600;font-size:0.88rem;">${u.name}</div>
+      </div></td>
+      <td style="font-size:0.82rem;font-family:monospace;color:var(--primary-light);">${u.employeeId || '—'}</td>
+      <td style="font-size:0.82rem;">${u.department || '—'}</td>
+      <td style="font-size:0.78rem;color:var(--text-muted);">${u.email || '—'}</td>
+      <td style="font-size:0.82rem;font-family:monospace;">@${u.username}</td>
+      <td><span class="badge ${u.status === 'active' ? 'badge-success' : 'badge-danger'}">${u.status === 'active' ? '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Active' : 'Inactive'}</span></td>
+      <td><span class="badge ${hasVoted ? 'badge-success' : 'badge-warning'}">${hasVoted ? '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Voted' : '<i data-lucide="clock" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Not Voted'}</span></td>
+      <td><div class="table-actions">
+        <button class="btn-icon edit" onclick="openVoterModal(${u.id})" title="Edit"><i data-lucide="pencil"></i></button>
+        <button class="btn-icon" onclick="toggleVoterStatus(${u.id}, '${u.status}')" title="Toggle Status" style="color:var(--warning);"><i data-lucide="refresh-cw"></i></button>
+        <button class="btn-icon delete" onclick="promptDeleteVoter(${u.id}, '${(u.name || '').replace(/'/g, "\\'")}')"><i data-lucide="trash-2"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function openVoterModal(id = null) {
+  editingVoterId = id;
+  document.getElementById('voterForm').reset();
+  document.getElementById('voterId').value = '';
+  const pwField = document.getElementById('voterPassword');
+  pwField.required = !id;
+  pwField.placeholder = id ? 'Leave blank to keep current' : 'Minimum 6 characters';
+
+  if (id) {
+    const u = votersCache.find(x => x.id === id);
+    if (!u) return;
+    document.getElementById('voterModalTitle').innerHTML = '<i data-lucide="pencil"></i> Edit Voter';
+    document.getElementById('voterId').value = id;
+    document.getElementById('voterName').value = u.name || '';
+    document.getElementById('voterEmpId').value = u.employeeId || '';
+    document.getElementById('voterEmail').value = u.email || '';
+    document.getElementById('voterDept').value = u.department || '';
+    document.getElementById('voterUsername').value = u.username || '';
+    document.getElementById('voterStatus').value = u.status || 'active';
+  } else {
+    document.getElementById('voterModalTitle').innerHTML = '<i data-lucide="plus"></i> Add New Voter';
+  }
+  Modal.open('voterModal');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function saveVoter(ev) {
+  ev.preventDefault();
+  const id = document.getElementById('voterId').value;
+  const pw = document.getElementById('voterPassword').value;
+  const payload = {
+    name: document.getElementById('voterName').value.trim(),
+    employeeId: document.getElementById('voterEmpId').value.trim(),
+    email: document.getElementById('voterEmail').value.trim(),
+    department: document.getElementById('voterDept').value.trim(),
+    username: document.getElementById('voterUsername').value.trim(),
+    status: document.getElementById('voterStatus').value,
+    role: 'voter',
+  };
+  if (pw) payload.password = pw;
+
+  if (!id && (!pw || pw.length < 6)) { Toast.show('Password must be at least 6 characters.', 'error'); return; }
+
+  const btn = ev.submitter || document.querySelector('#voterForm button[type=submit]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+  try {
+    if (id) {
+      await ApiClient.put(`/voters/${id}`, payload);
+      Toast.show('Voter updated!', 'success');
+    } else {
+      await ApiClient.post('/voters', payload);
+      Toast.show('Voter added!', 'success');
+    }
+    Modal.close('voterModal');
+    await loadVoters();
+  } catch (err) {
+    Toast.show(err.message || 'Failed to save voter.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Save Voter'; }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+async function toggleVoterStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  try {
+    await ApiClient.put(`/voters/${id}`, { status: newStatus });
+    Toast.show(`Voter ${newStatus === 'active' ? 'activated' : 'deactivated'}.`, 'info');
+    await loadVoters();
+  } catch (err) { Toast.show(err.message || 'Failed.', 'error'); }
+}
+
+function promptDeleteVoter(id, name) {
+  deletingVoterId = id;
+  document.getElementById('deleteVoterName').textContent = name;
+  Modal.open('deleteVoterModal');
+}
+
+async function deleteVoter() {
+  try {
+    await ApiClient.del(`/voters/${deletingVoterId}`);
+    Modal.close('deleteVoterModal');
+    Toast.show('Voter removed.', 'warning');
+    await loadVoters();
+  } catch (err) { Toast.show(err.message || 'Failed.', 'error'); }
+}
+
+async function approveVoter(id) {
+  try {
+    await ApiClient.put(`/voters/${id}`, { status: 'active' });
+    Toast.show('Voter approved!', 'success');
+    await loadVoters();
+  } catch (err) { Toast.show(err.message || 'Failed.', 'error'); }
+}
+
+async function rejectVoter(id, name) {
+  if (!confirm(`Remove "${name}" from the system?`)) return;
+  try {
+    await ApiClient.del(`/voters/${id}`);
+    Toast.show('Voter rejected and removed.', 'warning');
+    await loadVoters();
+  } catch (err) { Toast.show(err.message || 'Failed.', 'error'); }
+}
+
+function exportVotersCSV() {
+  const voters = votersCache.filter(u => u.role === 'voter');
+  Utils.exportCSV(
+    `TracFai-Voters-${new Date().toISOString().slice(0, 10)}.csv`,
+    ['Name', 'Employee ID', 'Department', 'Email', 'Username', 'Status', 'Vote Status'],
+    voters.map(u => [u.name, u.employeeId || '', u.department || '', u.email || '', u.username, u.status, u.hasVoted ? 'Voted' : 'Not Voted'])
+  );
+  Toast.show('Voter list exported!', 'success');
+}
+</script>
+</body>
+</html>
