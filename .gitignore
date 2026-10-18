@@ -15,6 +15,7 @@ backend/uploads/
 .env
 *_creds.json
 github_token.txt
+secret_key.txt
 
 # Editor / misc
 .vscode/

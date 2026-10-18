@@ -26,12 +26,32 @@ from routes.faculty    import faculty_bp
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
 DB_PATH     = os.path.join(BASE_DIR, 'voting.db')
+SECRET_FILE = os.path.join(BASE_DIR, 'secret_key.txt')
+
+
+def _load_secret_key():
+    """Use TRACFAI_SECRET_KEY env var if set; otherwise a random key stored in
+    backend/secret_key.txt (auto-created, gitignored) so it never appears in the repo."""
+    env_key = os.environ.get('TRACFAI_SECRET_KEY')
+    if env_key:
+        return env_key
+    if os.path.exists(SECRET_FILE):
+        with open(SECRET_FILE) as f:
+            key = f.read().strip()
+            if key:
+                return key
+    import secrets
+    key = secrets.token_hex(32)
+    with open(SECRET_FILE, 'w') as f:
+        f.write(key)
+    return key
+
 
 def create_app():
     app = Flask(__name__, static_folder=None)
 
     # ── Config ──
-    app.config['SECRET_KEY']                         = 'tracfai-secret-2025-change-in-production'
+    app.config['SECRET_KEY']                         = _load_secret_key()
     app.config['SQLALCHEMY_DATABASE_URI']            = f'sqlite:///{DB_PATH}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS']     = False
     app.config['MAX_CONTENT_LENGTH']                 = 5 * 1024 * 1024   # 5 MB upload limit
