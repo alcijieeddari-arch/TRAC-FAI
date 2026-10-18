@@ -1,0 +1,73 @@
+{
+  "name": "TRA-FAI Voting System",
+  "short_name": "TRA-FAI Vote",
+  "description": "Secure, Modern Electronic Voting System for TRA-FAI Faculty Organization",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#1e1b4b",
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities",
+    "education"
+  ],
+  "shortcuts": [
+    {
+      "name": "Cast My Vote",
+      "short_name": "Vote",
+      "description": "Vote in the ongoing faculty election",
+      "url": "/voter-vote.html",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Live Results",
+      "short_name": "Results",
+      "description": "View tabulated election results",
+      "url": "/voter-results.html",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Sign In",
+      "short_name": "Login",
+      "description": "Access your voting or administrator account",
+      "url": "/login.html",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

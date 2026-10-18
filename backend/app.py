@@ -93,6 +93,20 @@ def create_app():
     def serve_index():
         return send_from_directory(FRONTEND_DIR, 'index.html')
 
+    @app.route('/sw.js')
+    def serve_sw():
+        resp = send_from_directory(FRONTEND_DIR, 'sw.js')
+        resp.headers['Content-Type'] = 'application/javascript'
+        resp.headers['Service-Worker-Allowed'] = '/'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        return resp
+
+    @app.route('/manifest.json')
+    def serve_manifest():
+        resp = send_from_directory(FRONTEND_DIR, 'manifest.json')
+        resp.headers['Content-Type'] = 'application/manifest+json'
+        return resp
+
     @app.route('/<path:filename>')
     def serve_frontend(filename):
         if filename.startswith('backend') or filename.endswith('.db') or filename.endswith('.py'):

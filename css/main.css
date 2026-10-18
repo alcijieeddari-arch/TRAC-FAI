@@ -1120,3 +1120,41 @@ h1, h2, h3, h4, h5, h6 {
 /* Large hero / empty-state icons */
 .icon-xl [data-lucide]           { width: 48px; height: 48px; opacity: 0.25; }
 .icon-lg [data-lucide]           { width: 32px; height: 32px; }
+
+/* ===== PWA & MOBILE SMARTPHONE OPTIMIZATIONS ===== */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+body {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.is-pwa-standalone .navbar {
+  padding-top: calc(0.75rem + var(--sat));
+}
+
+.is-pwa-standalone .dashboard-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (max-width: 640px) {
+  button, .btn, .btn-primary, .btn-outline, .btn-ghost, .sidebar-link {
+    min-height: 44px;
+  }
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+  }
+}
+
+@keyframes pwaSlideUp {
+  from { transform: translateY(120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
