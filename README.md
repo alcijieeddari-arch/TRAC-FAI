@@ -1,4 +1,4 @@
-# TRAC-FAI E-Voting System
+# TRA-FAI Voting System
 
 **Tawi-Tawi Regional Agricultural College – Faculty Association Incorporated**  
 Full-stack voting platform: Flask (Python) backend + HTML/CSS/JS frontend.

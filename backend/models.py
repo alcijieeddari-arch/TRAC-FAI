@@ -1,5 +1,5 @@
 """
-TRAC-FAI Voting System — SQLAlchemy Database Models
+TRA-FAI Voting System — SQLAlchemy Database Models
 """
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime

@@ -1,5 +1,5 @@
 """
-TRAC-FAI Voting System -- Database Seeder
+TRA-FAI Voting System -- Database Seeder
 Run ONCE to initialize the database with default data.
 
 Usage:
@@ -20,35 +20,35 @@ from models import db, User, Election, Candidate, FacultyDB
 app = create_app()
 
 FACULTY_ROSTER = [
-    ('FAC-0001', 'Dr. Maria Santos',       'Mathematics',          'maria.santos@trac-fai.edu.ph'),
-    ('FAC-0002', 'Prof. Roberto Cruz',     'Engineering',          'roberto.cruz@trac-fai.edu.ph'),
-    ('FAC-0003', 'Dr. Ana Reyes',          'Science',              'ana.reyes@trac-fai.edu.ph'),
-    ('FAC-0004', 'Prof. Jose Mercado',     'Filipino',             'jose.mercado@trac-fai.edu.ph'),
-    ('FAC-0005', 'Dr. Linda Gomez',        'Social Studies',       'linda.gomez@trac-fai.edu.ph'),
-    ('FAC-0006', 'Prof. Carmen Dela Cruz', 'English',              'carmen.delacruz@trac-fai.edu.ph'),
-    ('FAC-0007', 'Prof. Marco Villanueva', 'History',              'marco.villanueva@trac-fai.edu.ph'),
-    ('FAC-0008', 'Dr. Patricia Tan',       'Accounting',           'patricia.tan@trac-fai.edu.ph'),
-    ('FAC-0009', 'Prof. Eduardo Santos',   'Business',             'eduardo.santos@trac-fai.edu.ph'),
-    ('FAC-0010', 'Dr. Fernando Lim',       'Economics',            'fernando.lim@trac-fai.edu.ph'),
-    ('FAC-0011', 'Dr. Lorna Magno',        'Nursing',              'lorna.magno@trac-fai.edu.ph'),
-    ('FAC-0012', 'Prof. Ricardo Bautista', 'Architecture',         'ricardo.bautista@trac-fai.edu.ph'),
-    ('FAC-0013', 'Dr. Teresa Aquino',      'Psychology',           'teresa.aquino@trac-fai.edu.ph'),
-    ('FAC-0014', 'Prof. Andres Garcia',    'Computer Science',     'andres.garcia@trac-fai.edu.ph'),
-    ('FAC-0015', 'Dr. Rosario Mendoza',    'Biology',              'rosario.mendoza@trac-fai.edu.ph'),
-    ('FAC-0016', 'Prof. Miguel Ramos',     'Physical Education',   'miguel.ramos@trac-fai.edu.ph'),
-    ('FAC-0017', 'Dr. Sophia Valdez',      'Chemistry',            'sophia.valdez@trac-fai.edu.ph'),
-    ('FAC-0018', 'Prof. Enrique Torres',   'Philosophy',           'enrique.torres@trac-fai.edu.ph'),
-    ('FAC-0019', 'Dr. Gloria Navarro',     'Political Science',    'gloria.navarro@trac-fai.edu.ph'),
-    ('FAC-0020', 'Prof. Benjamin Castillo','Fine Arts',            'benjamin.castillo@trac-fai.edu.ph'),
-    ('FAC-0042', 'Dr. Juan Dela Cruz',     'Science Department',   'juan.delacruz@trac-fai.edu.ph'),
-    ('FAC-0085', 'Prof. Maria Santos',     'Mathematics Department','maria.santos2@trac-fai.edu.ph'),
-    ('FAC-0103', 'Dr. Jose Rizal',         'Filipino Department',  'jose.rizal@trac-fai.edu.ph'),
+    ('FAC-0001', 'Dr. Maria Santos',       'Mathematics',          'maria.santos@tra-fai.edu.ph'),
+    ('FAC-0002', 'Prof. Roberto Cruz',     'Engineering',          'roberto.cruz@tra-fai.edu.ph'),
+    ('FAC-0003', 'Dr. Ana Reyes',          'Science',              'ana.reyes@tra-fai.edu.ph'),
+    ('FAC-0004', 'Prof. Jose Mercado',     'Filipino',             'jose.mercado@tra-fai.edu.ph'),
+    ('FAC-0005', 'Dr. Linda Gomez',        'Social Studies',       'linda.gomez@tra-fai.edu.ph'),
+    ('FAC-0006', 'Prof. Carmen Dela Cruz', 'English',              'carmen.delacruz@tra-fai.edu.ph'),
+    ('FAC-0007', 'Prof. Marco Villanueva', 'History',              'marco.villanueva@tra-fai.edu.ph'),
+    ('FAC-0008', 'Dr. Patricia Tan',       'Accounting',           'patricia.tan@tra-fai.edu.ph'),
+    ('FAC-0009', 'Prof. Eduardo Santos',   'Business',             'eduardo.santos@tra-fai.edu.ph'),
+    ('FAC-0010', 'Dr. Fernando Lim',       'Economics',            'fernando.lim@tra-fai.edu.ph'),
+    ('FAC-0011', 'Dr. Lorna Magno',        'Nursing',              'lorna.magno@tra-fai.edu.ph'),
+    ('FAC-0012', 'Prof. Ricardo Bautista', 'Architecture',         'ricardo.bautista@tra-fai.edu.ph'),
+    ('FAC-0013', 'Dr. Teresa Aquino',      'Psychology',           'teresa.aquino@tra-fai.edu.ph'),
+    ('FAC-0014', 'Prof. Andres Garcia',    'Computer Science',     'andres.garcia@tra-fai.edu.ph'),
+    ('FAC-0015', 'Dr. Rosario Mendoza',    'Biology',              'rosario.mendoza@tra-fai.edu.ph'),
+    ('FAC-0016', 'Prof. Miguel Ramos',     'Physical Education',   'miguel.ramos@tra-fai.edu.ph'),
+    ('FAC-0017', 'Dr. Sophia Valdez',      'Chemistry',            'sophia.valdez@tra-fai.edu.ph'),
+    ('FAC-0018', 'Prof. Enrique Torres',   'Philosophy',           'enrique.torres@tra-fai.edu.ph'),
+    ('FAC-0019', 'Dr. Gloria Navarro',     'Political Science',    'gloria.navarro@tra-fai.edu.ph'),
+    ('FAC-0020', 'Prof. Benjamin Castillo','Fine Arts',            'benjamin.castillo@tra-fai.edu.ph'),
+    ('FAC-0042', 'Dr. Juan Dela Cruz',     'Science Department',   'juan.delacruz@tra-fai.edu.ph'),
+    ('FAC-0085', 'Prof. Maria Santos',     'Mathematics Department','maria.santos2@tra-fai.edu.ph'),
+    ('FAC-0103', 'Dr. Jose Rizal',         'Filipino Department',  'jose.rizal@tra-fai.edu.ph'),
 ]
 
 SAMPLE_VOTERS = [
-    ('FAC-0042', 'Dr. Juan Dela Cruz',  'juandc',      'juan.delacruz@trac-fai.edu.ph', 'Science Department'),
-    ('FAC-0085', 'Prof. Maria Santos',  'mariasantos', 'maria.santos2@trac-fai.edu.ph', 'Mathematics Department'),
-    ('FAC-0103', 'Dr. Jose Rizal',      'joserizal',   'jose.rizal@trac-fai.edu.ph',    'Filipino Department'),
+    ('FAC-0042', 'Dr. Juan Dela Cruz',  'juandc',      'juan.delacruz@tra-fai.edu.ph', 'Science Department'),
+    ('FAC-0085', 'Prof. Maria Santos',  'mariasantos', 'maria.santos2@tra-fai.edu.ph', 'Mathematics Department'),
+    ('FAC-0103', 'Dr. Jose Rizal',      'joserizal',   'jose.rizal@tra-fai.edu.ph',    'Filipino Department'),
 ]
 
 POSITIONS = ['President', 'Vice President', 'Secretary', 'Treasurer', 'Auditor']
@@ -78,7 +78,7 @@ def seed():
                 employee_id='EMP-001',
                 name='Administrator',
                 username='admin',
-                email='admin@trac-fai.edu.ph',
+                email='admin@tra-fai.edu.ph',
                 password_hash=generate_password_hash('admin123'),
                 department='IT Department',
                 role='admin',
@@ -146,7 +146,7 @@ def seed():
 
         print("")
         print("=" * 55)
-        print("  TRAC-FAI Database Seeding Complete!")
+        print("  TRA-FAI Database Seeding Complete!")
         print("  Admin Login:  admin / admin123")
         print("  Voter Login:  juandc / voter123")
         print("=" * 55)

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Election Results | Trac-Fai E-Voting System</title>
+  <title>Election Results | TRA-FAI Voting System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -17,9 +17,9 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">
         <div class="logo-icon">
-          <img src="img/logo.png" alt="Trac-Fai Logo" />
+          <img src="img/logo.png" alt="TRA-FAI Logo" />
         </div>
-        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+        <span>TRA-FAI <span class="logo-accent">Vote</span></span>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -38,7 +38,6 @@
           <div class="su-name" id="sidebarName">Loading...</div>
           <div class="su-role">Faculty Voter</div>
         </div>
-        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
       </div>
     </div>
   </aside>
@@ -81,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const avatarEl = document.getElementById('sidebarAvatar');
   const photoUrl = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
   if (photoUrl) {
-    const src = photoUrl.startsWith('http') || photoUrl.startsWith('data:') ? photoUrl : '/uploads/' + photoUrl;
+    const src = Utils.photoSrc(photoUrl);
     avatarEl.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     avatarEl.style.padding = '0';
   } else {
@@ -174,14 +173,14 @@ function renderPositionResults(election, results, totalVoted) {
 
     const photoSrc = winner.photoUrl || winner.photo;
     const winnerPhoto = photoSrc
-      ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;">`
+      ? `<img src="${Utils.photoSrc(photoSrc)}" style="width:100%;height:100%;object-fit:cover;">`
       : `<i data-lucide="user" style="width:28px;height:28px;color:white;"></i>`;
 
     html += `
       <div class="result-card" style="margin-bottom:1.25rem;">
         <div class="result-position-header">
           <h3 style="font-size:1rem;">${position}</h3>
-          ${winnerVotes > 0 ? `<span class="badge badge-success"><i data-lucide="trophy"></i> Leader: ${winner.name}</span>` : '<span class="badge badge-muted">No votes yet</span>'}
+          ${winnerVotes > 0 ? `<span class="badge badge-success"><i data-lucide="trophy"></i> Leading: ${winner.name}</span>` : '<span class="badge badge-muted">No votes yet</span>'}
         </div>
 
         ${winnerVotes > 0 ? `
@@ -189,7 +188,7 @@ function renderPositionResults(election, results, totalVoted) {
           <div class="rwb-crown"><i data-lucide="crown" style="width:18px;height:18px;color:#f59e0b;"></i></div>
           <div style="width:52px; height:52px; border-radius:50%; background:var(--primary); border:2px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${winnerPhoto}</div>
           <div>
-            <div class="rwb-label"><i data-lucide="trophy"></i> Current Leader</div>
+            <div class="rwb-label"><i data-lucide="trophy"></i> Current Leading</div>
             <div class="rwb-name">${winner.name}</div>
             <div style="font-size:0.75rem; color:var(--text-muted);">${winner.party || 'Independent'} • ${winner.department || ''}</div>
           </div>
@@ -206,15 +205,15 @@ function renderPositionResults(election, results, totalVoted) {
             const barPct = maxVotes > 0 ? Math.round((votes / maxVotes) * 100) : 0;
             const cPhotoSrc = c.photoUrl || c.photo;
             const candPhoto = cPhotoSrc
-              ? `<img src="${cPhotoSrc.startsWith('http') || cPhotoSrc.startsWith('data:') ? cPhotoSrc : '/uploads/' + cPhotoSrc}" style="width:100%;height:100%;object-fit:cover;">`
+              ? `<img src="${Utils.photoSrc(cPhotoSrc)}" style="width:100%;height:100%;object-fit:cover;">`
               : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
 
             return `
               <div class="chart-bar-row">
-                <div style="display:flex; align-items:center; gap:0.5rem; width:150px; flex-shrink:0;">
-                  <div style="width:26px; height:26px; border-radius:50%; background:var(--primary); border:1px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${candPhoto}</div>
+                <div style="display:flex; align-items:center; gap:0.55rem; width:170px; flex-shrink:0;">
+                  <div style="width:34px; height:34px; border-radius:50%; background:var(--primary); box-shadow:0 0 0 2px ${idx === 0 && votes > 0 ? '#f59e0b' : 'var(--border)'}; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${candPhoto}</div>
                   <div class="chart-bar-label" title="${c.name}" style="width:auto; flex:1;">
-                    ${idx === 0 && votes > 0 ? '<i data-lucide="trophy" style="width:14px;height:14px;color:#f59e0b;vertical-align:middle;"></i>' : idx === 1 ? '<i data-lucide="medal" style="width:14px;height:14px;color:#94a3b8;vertical-align:middle;"></i>' : idx === 2 ? '<i data-lucide="medal" style="width:14px;height:14px;color:#cd7f32;vertical-align:middle;"></i>' : ''} ${c.name}
+                    <span style="font-weight:700; color:${idx === 0 ? 'var(--primary-light)' : 'var(--text-muted)'}; margin-right:4px;">#${idx + 1}</span> ${c.name}
                   </div>
                 </div>
                 <div class="chart-bar-track">

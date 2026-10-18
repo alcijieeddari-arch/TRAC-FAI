@@ -1,31 +1,39 @@
 @echo off
+setlocal enabledelayedexpansion
 echo ============================================
-echo  TRAC-FAI Voting System - Backend Startup
+echo  TRA-FAI Voting System - Backend Startup
 echo ============================================
 echo.
 
 cd /d "%~dp0backend"
 
-echo [1/3] Checking Python...
-python --version
+echo [1/4] Checking Python...
+python --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python not found. Please install Python 3.8+
     pause
     exit /b 1
 )
+python --version
 
 echo.
-echo [2/3] Installing dependencies...
+echo [2/4] Checking if backend is already running on port 5000...
+netstat -ano | findstr ":5000" | findstr "LISTENING" >nul 2>&1
+if not errorlevel 1 (
+    echo  Backend is already running on port 5000. Nothing to do.
+    echo  API: http://127.0.0.1:5000/api
+    pause
+    exit /b 0
+)
+
+echo.
+echo [3/4] Installing / verifying dependencies...
 pip install -r requirements.txt --quiet
 
 echo.
-echo [3/3] Seeding database (first run only)...
-python seed.py
-
-echo.
-echo ============================================
-echo  Starting Flask API server on port 5000...
-echo  API: http://localhost:5000/api
+echo [4/4] Starting Flask backend...
+echo  API:     http://127.0.0.1:5000/api
+echo  Health:  http://127.0.0.1:5000/api/health
 echo ============================================
 echo.
 python app.py

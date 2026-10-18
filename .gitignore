@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Local database & user uploads (contain faculty personal data — never commit)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/uploads/
+
+# Secrets / local config
+.env
+*_creds.json
+github_token.txt
+
+# Editor / misc
+.vscode/
+*.log
+*.zip
+temp_test.js

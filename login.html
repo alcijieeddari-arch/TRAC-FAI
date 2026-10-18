@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | Trac-Fai E-Voting System</title>
-  <meta name="description" content="Securely log in to the Trac-Fai electronic voting platform." />
+  <title>Login | TRA-FAI Voting System</title>
+  <meta name="description" content="Securely log in to the TRA-FAI Voting System electronic voting platform." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -24,12 +24,12 @@
       <div class="lv-content">
         <div class="lv-logo">
           <div class="logo-icon">
-            <img src="img/logo.png" alt="Trac-Fai Logo" />
+            <img src="img/logo.png" alt="TRA-FAI Logo" />
           </div>
-          <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+          <span>TRA-FAI <span class="logo-accent">Vote</span></span>
         </div>
         <div class="lv-hero-icon" style="margin-bottom:1.5rem;">
-          <img src="img/logo.png" alt="Trac-Fai Seal" style="width:108px; height:108px; border-radius:50%; object-fit:contain; filter:drop-shadow(0 4px 14px rgba(0,0,0,0.25));" />
+          <img src="img/logo.png" alt="TRA-FAI Seal" style="width:108px; height:108px; border-radius:50%; object-fit:contain; filter:drop-shadow(0 4px 14px rgba(0,0,0,0.25));" />
         </div>
         <h2>Secure Online<br/>Voting Platform</h2>
         <p>Exercise your right to vote from anywhere. Your ballot is private, secure, and counted instantly.</p>
@@ -63,7 +63,7 @@
           <div>
             <a href="index.html" class="lfb-back">← Back to Home</a>
             <h1 style="margin-top:0.25rem;">Welcome Back</h1>
-            <p>Sign in to access the Trac-Fai E-Voting System</p>
+            <p>Sign in to access the TRA-FAI Voting System</p>
           </div>
           <div style="display:flex; gap:0.4rem; margin-top:0.25rem;">
             <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
@@ -128,7 +128,7 @@
       <form id="forgotForm">
         <div class="form-group" style="margin-bottom: 1.25rem;">
           <label for="forgotEmail">Email Address</label>
-          <input type="email" id="forgotEmail" placeholder="your@trac-fai.edu.ph" required />
+          <input type="email" id="forgotEmail" placeholder="your@tra-fai.edu.ph" required />
         </div>
         <button type="submit" class="btn-primary btn-full">Send Reset Link</button>
       </form>
@@ -137,9 +137,53 @@
 
   <script src="js/main.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
 
-      // Redirect if already logged in
+      // ── Offline notice banner (login-page specific, inline) ──
+      let _offlineBanner = null;
+      let _isOfflineMode = false;
+
+      function showOfflineNotice() {
+        if (_offlineBanner) return;
+        _offlineBanner = document.createElement('div');
+        _offlineBanner.id = 'login-offline-notice';
+        _offlineBanner.innerHTML = `
+          <span>⚡</span>
+          <span>Server is starting up — <strong>you can still sign in if you've logged in before.</strong> New accounts require the server to be running.</span>
+          <button id="loginRetryBtn" style="margin-left:auto;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:6px;padding:2px 12px;cursor:pointer;font-size:0.8rem;">Retry</button>`;
+        Object.assign(_offlineBanner.style, {
+          display:'flex', alignItems:'center', gap:'0.6rem',
+          background:'linear-gradient(135deg,#1e3a5f,#2563eb)',
+          color:'#fff', padding:'0.6rem 1rem', borderRadius:'10px',
+          fontSize:'0.82rem', marginBottom:'1rem', lineHeight:'1.4'
+        });
+        const form = document.querySelector('.login-form-box');
+        form.insertBefore(_offlineBanner, form.firstChild);
+
+        document.getElementById('loginRetryBtn').addEventListener('click', async () => {
+          const ok = await ApiClient.checkHealth();
+          if (ok) {
+            _isOfflineMode = false;
+            _offlineBanner.remove(); _offlineBanner = null;
+            clearErrors();
+          } else {
+            document.getElementById('loginRetryBtn').textContent = 'Still starting…';
+            setTimeout(() => { if (document.getElementById('loginRetryBtn')) document.getElementById('loginRetryBtn').textContent = 'Retry'; }, 2000);
+          }
+        });
+      }
+
+      // Check backend status in the background (non-blocking, so the
+      // Sign In handler below is attached immediately)
+      ApiClient.checkHealth().then(backendUp => {
+        if (!backendUp) {
+          _isOfflineMode = true;
+          showOfflineNotice();
+          ApiClient.initCheck(); // starts silent reconnect polling
+        }
+      });
+
+      // ── Redirect if already logged in ──
       const session = Auth.getSession();
       if (session) {
         window.location.href = session.role === 'admin' ? 'admin-dashboard.html' : 'voter-dashboard.html';
@@ -180,19 +224,46 @@
         document.getElementById('loginBtnLoader').style.display = '';
         btn.disabled = true;
 
-        const result = await Auth.login(username, password);
+        const tryOfflineLogin = () => {
+          const cachedSession = OfflineAuth.verify(username, password);
+          if (!cachedSession) return null;
+          cachedSession.lastActivity = Date.now();
+          cachedSession.offlineLogin = true;
+          localStorage.setItem(Auth.SESSION_KEY, JSON.stringify(cachedSession));
+          if (cachedSession.token) ApiClient.setToken(cachedSession.token);
+          return { success: true, user: cachedSession };
+        };
 
-        document.getElementById('loginBtnText').style.display = '';
-        document.getElementById('loginBtnLoader').style.display = 'none';
-        btn.disabled = false;
+        let result;
+        try {
+          // ── Try the backend first (has its own timeout + retry) ──
+          result = await Auth.login(username, password);
+
+          if (result.success) {
+            _isOfflineMode = false;
+            if (_offlineBanner) { _offlineBanner.remove(); _offlineBanner = null; }
+          } else if (result.isOffline || result.error === 'Failed to fetch') {
+            // ── OFFLINE FALLBACK: try locally cached credentials ──
+            result = tryOfflineLogin() || {
+              success: false,
+              isOffline: true,
+              error: 'Cannot reach the server. Run start-backend.bat in the project folder, then try again.'
+            };
+            if (!result.success) showOfflineNotice();
+          }
+        } catch (err) {
+          result = tryOfflineLogin() || { success: false, error: err.message || 'Login failed. Please try again.' };
+        } finally {
+          document.getElementById('loginBtnText').style.display = '';
+          document.getElementById('loginBtnLoader').style.display = 'none';
+          btn.disabled = false;
+        }
 
         if (result.success) {
-          // Redirect based on actual role in database
           const dest = result.user.role === 'admin' ? 'admin-dashboard.html' : 'voter-dashboard.html';
-          window.location.href = dest;
+          window.location.replace(dest);
         } else {
-          // Wrong credentials or status check error
-          showError(result.error);
+          showError(result.error || 'Invalid username/email or password.');
           document.getElementById('loginPassword').value = '';
         }
       });
@@ -223,3 +294,4 @@
   </script>
 </body>
 </html>
+

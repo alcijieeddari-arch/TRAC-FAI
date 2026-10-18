@@ -48,6 +48,7 @@ def create_voter():
     department = (data.get('department') or '').strip()
     password = data.get('password') or 'voter123'
     status = data.get('status', 'active')
+    photo_url = data.get('photoUrl') or data.get('photo')
 
     if not name or not username:
         return jsonify({'error': 'Name and username are required.'}), 400
@@ -64,7 +65,8 @@ def create_voter():
         department=department,
         password_hash=generate_password_hash(password),
         role='voter',
-        status=status
+        status=status,
+        photo_url=photo_url
     )
     db.session.add(new_voter)
     db.session.commit()
@@ -85,15 +87,22 @@ def get_voter(vid):
 @voters_bp.route('/<int:vid>', methods=['PUT'])
 @require_auth('admin')
 def update_voter(vid):
+    from werkzeug.security import generate_password_hash
     voter = User.query.get_or_404(vid)
     data  = request.get_json(force=True) or {}
 
     old_status = voter.status
     if 'status' in data and data['status'] in ('active', 'pending', 'inactive'):
         voter.status = data['status']
-    if 'name'       in data: voter.name       = data['name'].strip()
+    if 'name'       in data: voter.name        = data['name'].strip()
     if 'email'      in data: voter.email       = data['email'].strip().lower()
-    if 'department' in data: voter.department  = data['department'].strip()
+    if 'department' in data: voter.department   = data['department'].strip()
+    if 'employeeId' in data: voter.employee_id = data['employeeId'].strip()
+    if 'username'   in data: voter.username    = data['username'].strip().lower()
+    if 'photoUrl'   in data: voter.photo_url   = data['photoUrl']
+    elif 'photo'    in data: voter.photo_url   = data['photo']
+    if 'password'   in data and data['password']:
+        voter.password_hash = generate_password_hash(data['password'])
 
     db.session.commit()
 
@@ -121,7 +130,7 @@ def delete_voter(vid):
     return jsonify({'message': f'Voter "{name}" deleted.'}), 200
 
 
-# ── POST /api/voters/upload-photo ─────────────────────────────────────────────
+# ── POST /api/voters/upload-photo (current user) ──────────────────────────────
 @voters_bp.route('/upload-photo', methods=['POST'])
 @require_auth()
 def upload_photo():
@@ -130,7 +139,7 @@ def upload_photo():
         file = request.files.get('photo')
         if file and file.filename != '' and allowed_file(file.filename):
             ext = file.filename.rsplit('.', 1)[1].lower()
-            filename = f"{uuid.uuid4().hex}.{ext}"
+            filename = f"voter_{g.user.id}_{uuid.uuid4().hex[:8]}.{ext}"
             upload_dir = current_app.config['UPLOAD_FOLDER']
             os.makedirs(upload_dir, exist_ok=True)
             file.save(os.path.join(upload_dir, filename))
@@ -147,6 +156,35 @@ def upload_photo():
 
     add_audit('PROFILE_PHOTO_UPDATED', f'User "{g.user.name}" updated profile photo', g.user.id)
     return jsonify({'photoUrl': photo_url, 'user': g.user.to_dict()}), 200
+
+
+# ── POST /api/voters/<vid>/upload-photo (admin uploading for a voter) ─────────
+@voters_bp.route('/<int:vid>/upload-photo', methods=['POST'])
+@require_auth('admin')
+def admin_upload_voter_photo(vid):
+    voter = User.query.get_or_404(vid)
+    photo_url = None
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        file = request.files.get('photo')
+        if file and file.filename != '' and allowed_file(file.filename):
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            filename = f"voter_{vid}_{uuid.uuid4().hex[:8]}.{ext}"
+            upload_dir = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_dir, exist_ok=True)
+            file.save(os.path.join(upload_dir, filename))
+            photo_url = f"/uploads/{filename}"
+    else:
+        data = request.get_json(force=True) or {}
+        photo_url = data.get('photoUrl') or data.get('photo')
+
+    if not photo_url:
+        return jsonify({'error': 'No valid photo provided.'}), 400
+
+    voter.photo_url = photo_url
+    db.session.commit()
+
+    add_audit('VOTER_PHOTO_UPDATED', f'Admin updated photo for voter "{voter.name}"', g.user.id)
+    return jsonify({'photoUrl': photo_url, 'voter': voter.to_dict()}), 200
 
 
 # ── DELETE /api/voters/upload-photo ───────────────────────────────────────────

@@ -1,286 +1,698 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cast Vote | Trac-Fai E-Voting System</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Cast Vote | TRA-FAI Voting System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
   <style>
-    /* ── Abstain button ── */
+    /* ── Micro Animations ── */
+    @keyframes checkPop {
+      0% {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+      }
+
+      70% {
+        transform: scale(1.25) rotate(6deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes pulseGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(13, 95, 48, 0.35);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(13, 95, 48, 0);
+      }
+    }
+
+    @keyframes sheenSweep {
+      0% {
+        background-position: -200% center;
+      }
+
+      100% {
+        background-position: 200% center;
+      }
+    }
+
+    /* ── Position Group Hover ── */
+    .position-group {
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .position-group:hover {
+      border-color: var(--mint);
+    }
+
+    /* ── Abstain button hover ── */
     .abstain-btn {
       background: none;
       border: 1.5px dashed var(--border);
       border-radius: var(--radius-full);
-      padding: 0.45rem 1.35rem;
+      padding: 0.5rem 1.5rem;
       color: var(--text-muted);
       font-size: 0.82rem;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-      font-weight: 500;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 600;
       font-family: var(--font-main);
     }
-    .abstain-btn:hover { border-color: var(--warning); color: var(--warning); }
+
+    .abstain-btn:hover {
+      border-color: var(--warning);
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2);
+    }
+
+    .abstain-btn:active {
+      transform: translateY(0);
+    }
+
     .abstain-btn.active {
       border-color: var(--warning);
       color: var(--warning);
-      background: rgba(245,158,11,0.08);
+      background: rgba(245, 158, 11, 0.14);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
     }
 
     /* ── Progress bar ── */
     .ballot-progress-wrap {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 1rem 1.5rem;
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1.6rem;
       margin-bottom: 1.5rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.25rem;
+      transition: box-shadow 0.3s ease;
     }
-    .ballot-progress-inner { flex: 1; }
+
+    .ballot-progress-wrap:hover {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ballot-progress-inner {
+      flex: 1;
+    }
+
     .ballot-progress-labels {
       display: flex;
       justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.35rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
     }
 
-    /* ── Vote success ── */
-    .vs-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    /* ── Candidate Card Rich Hover Effects ── */
+    .candidate-card {
+      position: relative;
+      transition: transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1),
+        box-shadow 0.28s cubic-bezier(0.34, 1.4, 0.64, 1),
+        border-color 0.25s ease,
+        background-color 0.25s ease;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
 
-    /* ── Candidate card selected checkmark ── */
+    .candidate-card:hover {
+      background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 16px 36px -8px rgba(11, 102, 53, 0.2), 0 0 0 1.5px var(--mint);
+      border-color: var(--primary);
+    }
+
+    [data-theme="dark"] .candidate-card:hover {
+      background: linear-gradient(145deg, #1f3629 0%, #152b1f 100%);
+      border-color: #34d399;
+      box-shadow: 0 18px 40px -6px rgba(52, 211, 153, 0.35), 0 0 0 1.5px rgba(52, 211, 153, 0.45);
+    }
+
+    .candidate-card:active {
+      transform: translateY(-2px) scale(0.99);
+    }
+
+    /* Candidate Photo Zoom on Card Hover */
+    .candidate-card .cc-photo {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+    }
+
+    .candidate-card:hover .cc-photo {
+      transform: scale(1.08);
+      box-shadow: 0 8px 20px rgba(13, 95, 48, 0.25);
+      border-color: var(--primary);
+    }
+
+    /* Candidate Name color shift */
+    .candidate-card .cc-name {
+      transition: color 0.2s ease;
+    }
+
+    .candidate-card:hover .cc-name {
+      color: var(--primary);
+    }
+    [data-theme="dark"] .candidate-card:hover .cc-name {
+      color: #34d399;
+    }
+
+    /* Candidate Card Select Button Hover */
+    .candidate-card .cc-select-btn {
+      margin-top: 0.85rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-align: center;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-secondary);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .candidate-card:hover .cc-select-btn {
+      border-color: transparent;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+      box-shadow: 0 4px 14px rgba(13, 95, 48, 0.25);
+      transform: translateY(-1px);
+    }
+    [data-theme="dark"] .candidate-card:hover .cc-select-btn {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      color: #041a0e;
+      box-shadow: 0 4px 16px rgba(52, 211, 153, 0.4);
+    }
+
+    /* Candidate Card Selected Active State */
+    .candidate-card.selected {
+      border-color: var(--primary) !important;
+      background: rgba(161, 206, 170, 0.09);
+      box-shadow: 0 0 0 2.5px var(--primary), 0 12px 28px -4px rgba(13, 95, 48, 0.22);
+      transform: translateY(-3px);
+    }
+
+    .candidate-card.selected .cc-select-btn {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(13, 95, 48, 0.3);
+    }
+
     .candidate-card.selected::after {
       content: '✓';
-      position: absolute; top: 0.6rem; right: 0.6rem;
-      width: 22px; height: 22px;
-      background: var(--primary); color: white;
+      position: absolute;
+      top: 0.65rem;
+      right: 0.65rem;
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: #ffffff;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(13, 95, 48, 0.35);
+      animation: checkPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* ── Submit Buttons Rich Hover ── */
+    #submitBallotBtn,
+    #bottomSubmitBallotBtn {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #submitBallotBtn:not(:disabled):hover,
+    #bottomSubmitBallotBtn:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(13, 95, 48, 0.32);
+    }
+
+    #submitBallotBtn:not(:disabled):active,
+    #bottomSubmitBallotBtn:not(:disabled):active {
+      transform: translateY(0) scale(0.98);
     }
 
     /* ── Confirm modal selection row ── */
     .confirm-row {
-      display: flex; align-items: center; gap: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
       padding: 0.75rem 1rem;
       background: var(--bg-surface);
       border-radius: var(--radius-md);
       border: 1px solid var(--border);
+      transition: transform 0.2s ease, border-color 0.2s ease;
     }
-    .confirm-row.abstain { border-color: rgba(245,158,11,0.3); }
+
+    .confirm-row:hover {
+      border-color: var(--mint);
+      transform: translateX(3px);
+    }
+
+    .confirm-row.abstain {
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
     .confirm-avatar {
-      width: 42px; height: 42px; border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
       background: var(--primary);
       border: 1px solid var(--border);
-      overflow: hidden; display: flex; align-items: center;
-      justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
     }
-    .confirm-avatar.abstain-avatar { background: rgba(245,158,11,0.15); }
-    .confirm-info { flex: 1; }
-    .confirm-name { font-weight: 700; font-size: 0.9rem; }
-    .confirm-pos  { font-size: 0.75rem; color: var(--text-muted); }
+
+    .confirm-row:hover .confirm-avatar {
+      transform: scale(1.08);
+    }
+
+    .confirm-avatar.abstain-avatar {
+      background: rgba(245, 158, 11, 0.15);
+    }
+
+    .confirm-info {
+      flex: 1;
+    }
+
+    .confirm-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .confirm-pos {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Bottom Summary Candidate Cards Hover ── */
+    .summary-card-item {
+      transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1),
+        box-shadow 0.25s ease,
+        border-color 0.25s ease,
+        background-color 0.25s ease;
+      cursor: pointer;
+    }
+
+    .summary-card-item:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 24px -4px rgba(13, 95, 48, 0.18);
+      border-color: var(--primary) !important;
+    }
+
+    .summary-card-item:active {
+      transform: translateY(-1px) scale(0.99);
+    }
+
+    /* ── Dark Theme Specific Lighter Touch / Hover Luminescence ── */
+    [data-theme="dark"] .candidate-card {
+      background: #14241b;
+      border-color: #21382a;
+    }
+
+    [data-theme="dark"] .candidate-card:hover {
+      background: #1f3629;
+      border-color: #34d399;
+      box-shadow: 0 16px 36px -6px rgba(52, 211, 153, 0.28), 0 0 0 1.5px rgba(52, 211, 153, 0.4);
+    }
+
+    [data-theme="dark"] .candidate-card:hover .cc-photo {
+      box-shadow: 0 8px 24px rgba(52, 211, 153, 0.35);
+      border-color: #34d399;
+    }
+
+    [data-theme="dark"] .candidate-card:hover .cc-name {
+      color: #34d399;
+    }
+
+    [data-theme="dark"] .candidate-card .cc-select-btn {
+      background: #172a1f;
+      border-color: #264232;
+      color: #a7d9b7;
+    }
+
+    [data-theme="dark"] .candidate-card:hover .cc-select-btn {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: #041a0e;
+      border-color: transparent;
+      box-shadow: 0 4px 16px rgba(52, 211, 153, 0.45);
+    }
+
+    [data-theme="dark"] .candidate-card.selected {
+      background: #1a3324;
+      border-color: #34d399 !important;
+      box-shadow: 0 0 0 2.5px #34d399, 0 14px 32px rgba(52, 211, 153, 0.35);
+    }
+
+    [data-theme="dark"] .candidate-card.selected .cc-select-btn {
+      background: #10b981;
+      color: #041a0e;
+      font-weight: 800;
+      border-color: #10b981;
+      box-shadow: 0 4px 14px rgba(52, 211, 153, 0.35);
+    }
+
+    [data-theme="dark"] .summary-card-item:hover {
+      background: #1e3326 !important;
+      border-color: #34d399 !important;
+      box-shadow: 0 10px 24px -4px rgba(52, 211, 153, 0.3);
+    }
+
+    [data-theme="dark"] .abstain-btn:hover {
+      background: rgba(251, 191, 36, 0.16);
+      color: #fde047;
+      border-color: #fbbf24;
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.25);
+    }
+
+    [data-theme="dark"] .position-group:hover {
+      border-color: rgba(52, 211, 153, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── Light Mode Specific Touch & Hover Luminescence ── */
+    :root:not([data-theme="dark"]) .candidate-card {
+      background: #ffffff;
+      border-color: #d6e6db;
+      box-shadow: 0 2px 10px rgba(11, 102, 53, 0.04);
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card:hover {
+      background: #f3fbf5;
+      border-color: #10b981;
+      box-shadow: 0 16px 32px -6px rgba(11, 102, 53, 0.15), 0 0 0 1.5px #10b981;
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card:hover .cc-photo {
+      box-shadow: 0 6px 18px rgba(11, 102, 53, 0.2);
+      border-color: #10b981;
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card:hover .cc-name {
+      color: #0b6635;
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card .cc-select-btn {
+      background: #ffffff;
+      border-color: #cce0d2;
+      color: #274d36;
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card:hover .cc-select-btn {
+      background: linear-gradient(135deg, #0b6635, #10b981);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(11, 102, 53, 0.25);
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card.selected {
+      background: #eaf7ee;
+      border-color: #0b6635 !important;
+      box-shadow: 0 0 0 2.5px #0b6635, 0 12px 28px -4px rgba(11, 102, 53, 0.18);
+    }
+
+    :root:not([data-theme="dark"]) .candidate-card.selected .cc-select-btn {
+      background: #0b6635;
+      color: #ffffff;
+      border-color: #0b6635;
+      box-shadow: 0 4px 12px rgba(11, 102, 53, 0.3);
+    }
+
+    :root:not([data-theme="dark"]) .summary-card-item {
+      background: #ffffff;
+      border-color: #d6e6db;
+    }
+
+    :root:not([data-theme="dark"]) .summary-card-item:hover {
+      background: #f4fcf6 !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 10px 24px -4px rgba(11, 102, 53, 0.14);
+    }
+
+    :root:not([data-theme="dark"]) .abstain-btn:hover {
+      background: #fffbeb;
+      color: #b45309;
+      border-color: #f59e0b;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2);
+    }
+
+    :root:not([data-theme="dark"]) .position-group:hover {
+      border-color: #86c79a;
+      box-shadow: 0 4px 16px rgba(11, 102, 53, 0.06);
+    }
   </style>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
 <body>
-<div class="dashboard-layout">
+  <div class="dashboard-layout">
 
-  <!-- Sidebar Overlay (mobile) -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="logo-icon">
-          <img src="img/logo.png" alt="Trac-Fai Logo" />
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">
+            <img src="img/logo.png" alt="TRA-FAI Logo" />
+          </div>
+          <span>TRA-FAI <span class="logo-accent">Vote</span></span>
         </div>
-        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
       </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Navigation</div>
-      <a href="voter-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard</a>
-      <a href="voter-vote.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Cast My Vote</a>
-      <a href="voter-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Election Results</a>
-      <div class="nav-section-label">Account</div>
-      <a href="voter-profile.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="user"></i></span> My Profile</a>
-      <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="su-avatar" id="sidebarAvatar">JD</div>
-        <div class="su-info">
-          <div class="su-name" id="sidebarName">Loading...</div>
-          <div class="su-role">Faculty Voter</div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Navigation</div>
+        <a href="voter-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="layout-dashboard"></i></span> Dashboard</a>
+        <a href="voter-vote.html" class="sidebar-link active"><span class="sidebar-link-icon"><i
+              data-lucide="vote"></i></span> Cast My Vote</a>
+        <a href="voter-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="bar-chart-2"></i></span> Election Results</a>
+        <div class="nav-section-label">Account</div>
+        <a href="voter-profile.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="user"></i></span> My Profile</a>
+        <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i
+              data-lucide="log-out"></i></span> Logout</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="su-avatar" id="sidebarAvatar">JD</div>
+          <div class="su-info">
+            <div class="su-name" id="sidebarName">Loading...</div>
+            <div class="su-role">Faculty Voter</div>
+          </div>
         </div>
-        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
       </div>
-    </div>
-  </aside>
+    </aside>
 
-  <main class="main-content">
-    <!-- Topbar -->
-    <div class="topbar">
-      <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
-      <div class="topbar-breadcrumb">
-        <div class="breadcrumb-page"><i data-lucide="check-square"></i> Cast My Vote</div>
-        <div class="breadcrumb-sub">Select your candidates for each position</div>
+    <main class="main-content">
+      <!-- Topbar -->
+      <div class="topbar">
+        <button class="topbar-menu-btn" id="topbarMenuBtn"><i data-lucide="menu"></i></button>
+        <div class="topbar-breadcrumb">
+          <div class="breadcrumb-page"><i data-lucide="check-square"></i> Cast My Vote</div>
+          <div class="breadcrumb-sub">Select your candidates for each position</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i
+              data-lucide="sliders-horizontal"></i></button>
+          <button class="btn-theme-toggle topbar-btn" id="themeToggle">
+            <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+            </svg>
+            <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="topbar-actions">
-        <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
-        <button class="btn-theme-toggle topbar-btn" id="themeToggle">
-          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
-          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+
+      <div class="dashboard-content" id="mainContent">
+        <!-- Rendered by JS -->
       </div>
-    </div>
+    </main>
+  </div>
 
-    <div class="dashboard-content" id="mainContent">
-      <!-- Rendered by JS -->
-    </div>
-  </main>
-</div>
-
-<!-- ── Vote Confirmation Modal ── -->
-<div class="modal-overlay" id="confirmVoteModal">
-  <div class="modal" style="max-width:560px;">
-    <div class="modal-header">
-      <h3><i data-lucide="check-circle-2"></i> Confirm Your Ballot</h3>
-      <button class="modal-close" data-modal-close><i data-lucide="x"></i></button>
-    </div>
-    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1.25rem;">
-      Review your selections carefully. <strong>This action cannot be undone.</strong>
-    </p>
-    <div id="confirmSelectionsList" style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;"></div>
-    <div style="display:flex; gap:0.75rem;">
-      <button class="btn-outline btn-full" data-modal-close>← Change Selections</button>
-      <button class="btn-primary btn-full" id="finalSubmitBtn"><i data-lucide="check-square"></i> Submit My Vote</button>
+  <!-- ── Vote Confirmation Modal ── -->
+  <div class="modal-overlay" id="confirmVoteModal">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <h3><i data-lucide="check-circle-2"></i> Confirm Your Ballot</h3>
+        <button class="modal-close" data-modal-close><i data-lucide="x"></i></button>
+      </div>
+      <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1.25rem;">
+        Review your selections carefully. <strong>This action cannot be undone.</strong>
+      </p>
+      <div id="confirmSelectionsList" style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;">
+      </div>
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn-outline btn-full" data-modal-close>← Change Selections</button>
+        <button class="btn-primary btn-full" id="finalSubmitBtn"><i data-lucide="check-square"></i> Submit My
+          Vote</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ── Already Voted Modal ── -->
-<div class="modal-overlay" id="alreadyVotedModal">
-  <div class="modal" style="text-align:center; max-width:420px;">
-    <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="party-popper"></i></div>
-    <h3 style="margin-bottom:0.5rem;">You've Already Voted!</h3>
-    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1.25rem;">
-      Your vote has been recorded. Thank you for participating in this election.
-    </p>
-    <div class="vs-receipt" style="margin-bottom:1.5rem; text-align:left;">
-      <div class="vsr-label">Your Vote Receipt Code</div>
-      <div class="vsr-code" id="existingReceiptCode">—</div>
-    </div>
-    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-      <a href="voter-results.html" class="btn-primary"><i data-lucide="bar-chart-2"></i> View Live Results</a>
-      <a href="voter-dashboard.html" class="btn-outline">← Dashboard</a>
+  <!-- ── Already Voted Modal ── -->
+  <div class="modal-overlay" id="alreadyVotedModal">
+    <div class="modal" style="text-align:center; max-width:420px;">
+      <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="party-popper"></i></div>
+      <h3 style="margin-bottom:0.5rem;">You've Already Voted!</h3>
+      <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1.25rem;">
+        Your vote has been recorded. Thank you for participating in this election.
+      </p>
+      <div class="vs-receipt" style="margin-bottom:1.5rem; text-align:left;">
+        <div class="vsr-label">Your Vote Receipt Code</div>
+        <div class="vsr-code" id="existingReceiptCode">—</div>
+      </div>
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
+        <a href="voter-results.html" class="btn-primary"><i data-lucide="bar-chart-2"></i> View Live Results</a>
+        <a href="voter-dashboard.html" class="btn-outline">← Dashboard</a>
+      </div>
     </div>
   </div>
-</div>  <script src="js/api.js"></script>
+  <script src="js/api.js"></script>
 
-<script src="js/main.js"></script>
-<script>
-'use strict';
+  <script src="js/main.js"></script>
+  <script>
+    'use strict';
 
-/* ─────────────────── State ─────────────────── */
-let currentSelections = {};  // { [position]: candidateId | 'ABSTAIN' }
-let activeElection    = null;
-let allElectionCandidates = [];
-let ballotPositions   = [];  // positions that have at least one candidate
+    /* ─────────────────── State ─────────────────── */
+    let currentSelections = {};  // { [position]: candidateId | 'ABSTAIN' }
+    let activeElection = null;
+    let allElectionCandidates = [];
+    let ballotPositions = [];  // positions that have at least one candidate
 
-/* ─────────────────── Init ─────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
-  const session = Auth.requireAuth('voter');
-  if (!session) return;
+    /* ─────────────────── Init ─────────────────── */
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = Auth.requireAuth('voter');
+      if (!session) return;
 
-  /* ── Sidebar user info ── */
-  const initials   = session.name.split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
-  const avatarEl   = document.getElementById('sidebarAvatar');
-  const photoUrl   = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
-  if (photoUrl) {
-    const src = photoUrl.startsWith('http') || photoUrl.startsWith('data:') ? photoUrl : '/uploads/' + photoUrl;
-    avatarEl.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    avatarEl.style.padding = '0';
-  } else {
-    avatarEl.textContent = initials;
-  }
-  document.getElementById('sidebarName').textContent = session.name;
+      /* ── Sidebar user info ── */
+      const initials = session.name.split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
+      const avatarEl = document.getElementById('sidebarAvatar');
+      const photoUrl = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
+      if (photoUrl) {
+        const src = Utils.photoSrc(photoUrl);
+        avatarEl.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        avatarEl.style.padding = '0';
+      } else {
+        avatarEl.textContent = initials;
+      }
+      document.getElementById('sidebarName').textContent = session.name;
 
-  /* ── Logout buttons ── */
-  ['logoutBtn', 'logoutBtn2'].forEach(id => {
-    document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
-  });
+      /* ── Logout buttons ── */
+      ['logoutBtn', 'logoutBtn2'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+      });
 
-  /* ── Mobile sidebar toggle ── */
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  document.getElementById('topbarMenuBtn')?.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-  });
-  overlay?.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-  });
+      /* ── Mobile sidebar toggle ── */
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      document.getElementById('topbarMenuBtn')?.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      });
+      overlay?.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
 
-  const content = document.getElementById('mainContent');
-  content.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);">Loading ballot...</div>';
+      const content = document.getElementById('mainContent');
+      content.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);">Loading ballot...</div>';
 
-  try {
-    const [eData, cData] = await Promise.all([
-      ApiClient.get('/elections'),
-      ApiClient.get('/candidates')
-    ]);
+      try {
+        const [eData, cData] = await Promise.all([
+          ApiClient.get('/elections'),
+          ApiClient.get('/candidates')
+        ]);
 
-    const elections = eData.elections || eData || [];
-    allElectionCandidates = cData.candidates || cData || [];
+        const elections = eData.elections || eData || [];
+        allElectionCandidates = cData.candidates || cData || [];
 
-    if (elections.length === 0) {
-      content.innerHTML = `
+        if (elections.length === 0) {
+          content.innerHTML = `
         <div style="text-align:center; padding:4rem 2rem;">
           <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="inbox" style="width:48px;height:48px;opacity:0.4;"></i></div>
           <h2 style="margin-bottom:0.5rem;">No Active Elections</h2>
           <p style="color:var(--text-muted); margin-bottom:1.5rem;">There are no elections currently configured by the administrator. Check back later.</p>
           <a href="voter-dashboard.html" class="btn-primary">← Back to Dashboard</a>
         </div>`;
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-      return;
-    }
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+          return;
+        }
 
-    // Default to the first ongoing election that has candidates, or first election with candidates, or first election
-    activeElection = elections.find(e => {
-      const candCount = allElectionCandidates.filter(c => (c.electionId == e.id || c.election_id == e.id) && c.status !== 'inactive').length;
-      return e.status === 'ongoing' && candCount > 0;
-    }) || elections.find(e => {
-      return allElectionCandidates.filter(c => (c.electionId == e.id || c.election_id == e.id) && c.status !== 'inactive').length > 0;
-    }) || elections[0];
+        // Default to the first ongoing election that has candidates, or first election with candidates, or first election
+        activeElection = elections.find(e => {
+          const candCount = allElectionCandidates.filter(c => (c.electionId == e.id || c.election_id == e.id) && c.status !== 'inactive').length;
+          return e.status === 'ongoing' && candCount > 0;
+        }) || elections.find(e => {
+          return allElectionCandidates.filter(c => (c.electionId == e.id || c.election_id == e.id) && c.status !== 'inactive').length > 0;
+        }) || elections[0];
 
-    window.switchBallotElection = async (elId) => {
-      const chosen = elections.find(e => e.id == elId);
-      if (!chosen) return;
-      activeElection = chosen;
-      currentSelections = {};
-      await loadBallotForElection(session, chosen, elections);
-    };
+        window.switchBallotElection = async (elId) => {
+          const chosen = elections.find(e => e.id == elId);
+          if (!chosen) return;
+          activeElection = chosen;
+          currentSelections = {};
+          await loadBallotForElection(session, chosen, elections);
+        };
 
-    await loadBallotForElection(session, activeElection, elections);
-  } catch (err) {
-    content.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--danger);">Error loading ballot: ${err.message}</div>`;
-  }
-});
+        await loadBallotForElection(session, activeElection, elections);
+      } catch (err) {
+        content.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--danger);">Error loading ballot: ${err.message}</div>`;
+      }
+    });
 
-async function loadBallotForElection(session, election, elections) {
-  const content = document.getElementById('mainContent');
-  const voteStatus = await ElectionDB.hasVotedAsync(election.id);
+    async function loadBallotForElection(session, election, elections) {
+      const content = document.getElementById('mainContent');
+      const voteStatus = await ElectionDB.hasVotedAsync(election.id);
 
-  if (voteStatus.hasVoted) {
-    document.getElementById('existingReceiptCode').textContent = voteStatus.receiptCode || '—';
-    content.innerHTML = `
+      if (voteStatus.hasVoted) {
+        document.getElementById('existingReceiptCode').textContent = voteStatus.receiptCode || '—';
+        content.innerHTML = `
       ${renderElectionSelectorHtml(election, elections)}
       <div style="text-align:center; padding:3rem 2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); margin-top:1rem;">
         <div style="font-size:3.5rem; margin-bottom:1rem;"><i data-lucide="check-circle-2" style="width:56px;height:56px;color:var(--success);"></i></div>
@@ -292,16 +704,16 @@ async function loadBallotForElection(session, election, elections) {
           <a href="voter-dashboard.html" class="btn-outline">← Dashboard</a>
         </div>
       </div>`;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    return;
-  }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+      }
 
-  renderBallot(session, election, elections);
-}
+      renderBallot(session, election, elections);
+    }
 
-function renderElectionSelectorHtml(active, elections) {
-  if (!elections || elections.length <= 1) return '';
-  return `
+    function renderElectionSelectorHtml(active, elections) {
+      if (!elections || elections.length <= 1) return '';
+      return `
     <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
       <div style="display:flex; align-items:center; gap:0.6rem;">
         <i data-lucide="layers" style="width:20px;height:20px;color:var(--primary);"></i>
@@ -312,35 +724,35 @@ function renderElectionSelectorHtml(active, elections) {
       </select>
     </div>
   `;
-}
+    }
 
-/* ─────────────────── Render Ballot ─────────────────── */
-function renderBallot(session, election, elections = []) {
-  const candidates = allElectionCandidates.filter(c => 
-    (c.electionId == election.id || c.election_id == election.id) && c.status !== 'inactive'
-  );
-  const content = document.getElementById('mainContent');
+    /* ─────────────────── Render Ballot ─────────────────── */
+    function renderBallot(session, election, elections = []) {
+      const candidates = allElectionCandidates.filter(c =>
+        (c.electionId == election.id || c.election_id == election.id) && c.status !== 'inactive'
+      );
+      const content = document.getElementById('mainContent');
 
-  const declaredPositions = Array.isArray(election.positions)
-    ? election.positions
-    : (election.positions || '').split(',').map(p => p.trim()).filter(Boolean);
+      const declaredPositions = Array.isArray(election.positions)
+        ? election.positions
+        : (election.positions || '').split(',').map(p => p.trim()).filter(Boolean);
 
-  const candidatePositions = [...new Set(candidates.map(c => (c.position || '').trim()).filter(Boolean))];
-  const allPositions = [...new Set([...declaredPositions, ...candidatePositions])];
+      const candidatePositions = [...new Set(candidates.map(c => (c.position || '').trim()).filter(Boolean))];
+      const allPositions = [...new Set([...declaredPositions, ...candidatePositions])];
 
-  /* Group candidates by position */
-  const byPosition = {};
-  allPositions.forEach(p => { byPosition[p] = []; });
-  candidates.forEach(c => {
-    const posKey = (c.position || '').trim();
-    if (!byPosition[posKey]) byPosition[posKey] = [];
-    byPosition[posKey].push(c);
-  });
+      /* Group candidates by position */
+      const byPosition = {};
+      allPositions.forEach(p => { byPosition[p] = []; });
+      candidates.forEach(c => {
+        const posKey = (c.position || '').trim();
+        if (!byPosition[posKey]) byPosition[posKey] = [];
+        byPosition[posKey].push(c);
+      });
 
-  ballotPositions = Object.keys(byPosition).filter(p => byPosition[p].length > 0);
+      ballotPositions = Object.keys(byPosition).filter(p => byPosition[p].length > 0);
 
-  if (ballotPositions.length === 0) {
-    content.innerHTML = `
+      if (ballotPositions.length === 0) {
+        content.innerHTML = `
       ${renderElectionSelectorHtml(election, elections)}
       <div style="text-align:center; padding:4rem 2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); margin-top:1rem;">
         <i data-lucide="inbox" style="width:48px;height:48px;opacity:0.4;"></i>
@@ -348,12 +760,12 @@ function renderBallot(session, election, elections = []) {
         <p style="color:var(--text-muted); margin-bottom:1.5rem;">The election is created, but no candidates have been uploaded by the admin yet.</p>
         <a href="voter-dashboard.html" class="btn-primary">← Back to Dashboard</a>
       </div>`;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    return;
-  }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+      }
 
-  /* ── Build HTML ── */
-  let html = `
+      /* ── Build HTML ── */
+      let html = `
     ${renderElectionSelectorHtml(election, elections)}
     <!-- Election Header -->
     <div class="election-info-card">
@@ -388,9 +800,9 @@ function renderBallot(session, election, elections = []) {
     <div id="ballotForm">
   `;
 
-  ballotPositions.forEach((position, idx) => {
-    const pCandidates = byPosition[position];
-    html += `
+      ballotPositions.forEach((position, idx) => {
+        const pCandidates = byPosition[position];
+        html += `
       <div class="position-group" id="position-group-${idx}">
         <div class="position-label">
           <h3>${position}</h3>
@@ -399,12 +811,12 @@ function renderBallot(session, election, elections = []) {
         </div>
         <div class="candidates-grid">
           ${pCandidates.map(c => {
-            const photoSrc = c.photoUrl || c.photo;
-            const photoHtml = photoSrc
-              ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">`
-              : `<i data-lucide="user" style="width:24px;height:24px;color:white;"></i>`;
+          const photoSrc = c.photoUrl || c.photo;
+          const photoHtml = photoSrc
+            ? `<img src="${Utils.photoSrc(photoSrc)}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">`
+            : `<i data-lucide="user" style="width:24px;height:24px;color:white;"></i>`;
 
-            return `
+          return `
               <div class="candidate-card"
                 id="candidate-${c.id}"
                 onclick="selectCandidate(${c.id}, '${escapeAttr(position)}', ${idx})"
@@ -419,8 +831,9 @@ function renderBallot(session, election, elections = []) {
                 <div class="cc-party"><i data-lucide="building-2"></i> ${c.party || 'Independent'}</div>
                 <div class="cc-platform">${c.platform || 'No platform statement provided.'}</div>
                 <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">📚 ${c.department || 'General'}</div>
+                <div class="cc-select-btn" id="btn-select-${c.id}"><i data-lucide="check-square" style="width:13px;height:13px;"></i> Select Candidate</div>
               </div>`;
-          }).join('')}
+        }).join('')}
         </div>
         <!-- Abstain -->
         <div style="text-align:center; margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--border);">
@@ -434,9 +847,9 @@ function renderBallot(session, election, elections = []) {
         </div>
       </div>
     `;
-  });
+      });
 
-  html += `
+      html += `
     </div>
 
     <!-- Bottom Candidate List & Selection Summary -->
@@ -467,123 +880,131 @@ function renderBallot(session, election, elections = []) {
     </div>
   `;
 
-  content.innerHTML = html;
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+      content.innerHTML = html;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  /* ── Countdown timer ── */
-  const timerEl = document.getElementById('ballotTimer');
-  if (election.endDate) {
-    const tick = () => { timerEl.textContent = Utils.countdown(election.endDate); };
-    tick();
-    setInterval(tick, 1000);
-  }
+      /* ── Countdown timer ── */
+      const timerEl = document.getElementById('ballotTimer');
+      if (election.endDate) {
+        const tick = () => { timerEl.textContent = Utils.countdown(election.endDate); };
+        tick();
+        setInterval(tick, 1000);
+      }
 
-  /* ── Submit buttons ── */
-  document.getElementById('submitBallotBtn')?.addEventListener('click', showConfirmation);
-  document.getElementById('bottomSubmitBallotBtn')?.addEventListener('click', showConfirmation);
+      /* ── Submit buttons ── */
+      document.getElementById('submitBallotBtn')?.addEventListener('click', showConfirmation);
+      document.getElementById('bottomSubmitBallotBtn')?.addEventListener('click', showConfirmation);
 
-  updateProgress();
-}
-
-/* ─────────────────── Helpers ─────────────────── */
-function escapeAttr(str) {
-  return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
-/* ─────────────────── Select Candidate ─────────────────── */
-function selectCandidate(candidateId, position, positionIdx) {
-  const prev = currentSelections[position];
-
-  if (prev === 'ABSTAIN') {
-    const ab = document.getElementById('abstain-' + positionIdx);
-    if (ab) ab.classList.remove('active');
-  } else if (prev !== undefined) {
-    const prevEl = document.getElementById('candidate-' + prev);
-    if (prevEl) prevEl.classList.remove('selected');
-  }
-
-  currentSelections[position] = candidateId;
-  const el = document.getElementById('candidate-' + candidateId);
-  if (el) el.classList.add('selected');
-
-  const badge = document.getElementById('selected-badge-' + positionIdx);
-  if (badge) badge.style.display = '';
-
-  updateProgress();
-}
-
-/* ─────────────────── Abstain ─────────────────── */
-function selectAbstain(position, positionIdx) {
-  const prev = currentSelections[position];
-
-  if (prev !== undefined && prev !== 'ABSTAIN') {
-    const prevEl = document.getElementById('candidate-' + prev);
-    if (prevEl) prevEl.classList.remove('selected');
-  }
-
-  const ab = document.getElementById('abstain-' + positionIdx);
-  const badge = document.getElementById('selected-badge-' + positionIdx);
-
-  if (prev === 'ABSTAIN') {
-    delete currentSelections[position];
-    if (ab) ab.classList.remove('active');
-    if (badge) badge.style.display = 'none';
-  } else {
-    currentSelections[position] = 'ABSTAIN';
-    if (ab) ab.classList.add('active');
-    if (badge) badge.style.display = '';
-  }
-
-  updateProgress();
-}
-
-/* ─────────────────── Progress & Bottom Summary ─────────────────── */
-function updateProgress() {
-  const total  = ballotPositions.length;
-  const filled = Object.keys(currentSelections).length;
-  const pct    = total > 0 ? Math.round((filled / total) * 100) : 0;
-
-  const bar = document.getElementById('progressBar');
-  if (bar) bar.style.width = pct + '%';
-  const txt = document.getElementById('progressText');
-  if (txt) txt.textContent = `${filled} / ${total} completed`;
-
-  const bottomBadge = document.getElementById('bottomProgressBadge');
-  if (bottomBadge) {
-    bottomBadge.textContent = `${filled} / ${total} Selected`;
-    bottomBadge.className = filled === total ? 'badge badge-success' : 'badge badge-primary';
-  }
-
-  const btn1 = document.getElementById('submitBallotBtn');
-  const btn2 = document.getElementById('bottomSubmitBallotBtn');
-  const isComplete = filled === total && total > 0;
-
-  [btn1, btn2].forEach(btn => {
-    if (btn) {
-      btn.disabled = !isComplete;
-      btn.style.opacity = isComplete ? '1' : '0.5';
+      updateProgress();
     }
-  });
 
-  // Render bottom candidate cards
-  const summaryListEl = document.getElementById('bottomCandidateSummaryList');
-  if (summaryListEl) {
-    summaryListEl.innerHTML = ballotPositions.map((pos, idx) => {
-      const sel = currentSelections[pos];
-      if (!sel) {
-        return `
-          <div onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:var(--bg-surface); border:1.5px dashed var(--border); border-radius:var(--radius-lg); padding:1rem; cursor:pointer; transition:border-color 0.2s;" title="Click to choose candidate">
+    /* ─────────────────── Helpers ─────────────────── */
+    function escapeAttr(str) {
+      return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    /* ─────────────────── Select Candidate ─────────────────── */
+    function selectCandidate(candidateId, position, positionIdx) {
+      const prev = currentSelections[position];
+
+      if (prev === 'ABSTAIN') {
+        const ab = document.getElementById('abstain-' + positionIdx);
+        if (ab) ab.classList.remove('active');
+      } else if (prev !== undefined) {
+        const prevEl = document.getElementById('candidate-' + prev);
+        if (prevEl) prevEl.classList.remove('selected');
+        const prevBtn = document.getElementById('btn-select-' + prev);
+        if (prevBtn) prevBtn.innerHTML = '<i data-lucide="check-square" style="width:13px;height:13px;"></i> Select Candidate';
+      }
+
+      currentSelections[position] = candidateId;
+      const el = document.getElementById('candidate-' + candidateId);
+      if (el) el.classList.add('selected');
+      const currBtn = document.getElementById('btn-select-' + candidateId);
+      if (currBtn) currBtn.innerHTML = '✓ Selected Candidate';
+
+      const badge = document.getElementById('selected-badge-' + positionIdx);
+      if (badge) badge.style.display = '';
+
+      updateProgress();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    /* ─────────────────── Abstain ─────────────────── */
+    function selectAbstain(position, positionIdx) {
+      const prev = currentSelections[position];
+
+      if (prev !== undefined && prev !== 'ABSTAIN') {
+        const prevEl = document.getElementById('candidate-' + prev);
+        if (prevEl) prevEl.classList.remove('selected');
+        const prevBtn = document.getElementById('btn-select-' + prev);
+        if (prevBtn) prevBtn.innerHTML = '<i data-lucide="check-square" style="width:13px;height:13px;"></i> Select Candidate';
+      }
+
+      const ab = document.getElementById('abstain-' + positionIdx);
+      const badge = document.getElementById('selected-badge-' + positionIdx);
+
+      if (prev === 'ABSTAIN') {
+        delete currentSelections[position];
+        if (ab) ab.classList.remove('active');
+        if (badge) badge.style.display = 'none';
+      } else {
+        currentSelections[position] = 'ABSTAIN';
+        if (ab) ab.classList.add('active');
+        if (badge) badge.style.display = '';
+      }
+
+      updateProgress();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    /* ─────────────────── Progress & Bottom Summary ─────────────────── */
+    function updateProgress() {
+      const total = ballotPositions.length;
+      const filled = Object.keys(currentSelections).length;
+      const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+
+      const bar = document.getElementById('progressBar');
+      if (bar) bar.style.width = pct + '%';
+      const txt = document.getElementById('progressText');
+      if (txt) txt.textContent = `${filled} / ${total} completed`;
+
+      const bottomBadge = document.getElementById('bottomProgressBadge');
+      if (bottomBadge) {
+        bottomBadge.textContent = `${filled} / ${total} Selected`;
+        bottomBadge.className = filled === total ? 'badge badge-success' : 'badge badge-primary';
+      }
+
+      const btn1 = document.getElementById('submitBallotBtn');
+      const btn2 = document.getElementById('bottomSubmitBallotBtn');
+      const isComplete = filled === total && total > 0;
+
+      [btn1, btn2].forEach(btn => {
+        if (btn) {
+          btn.disabled = !isComplete;
+          btn.style.opacity = isComplete ? '1' : '0.5';
+        }
+      });
+
+      // Render bottom candidate cards
+      const summaryListEl = document.getElementById('bottomCandidateSummaryList');
+      if (summaryListEl) {
+        summaryListEl.innerHTML = ballotPositions.map((pos, idx) => {
+          const sel = currentSelections[pos];
+          if (!sel) {
+            return `
+          <div class="summary-card-item" onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:var(--bg-surface); border:1.5px dashed var(--border); border-radius:var(--radius-lg); padding:1rem;" title="Click to choose candidate">
             <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">${pos}</div>
             <div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.85rem;">
               <span style="width:24px;height:24px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">⏳</span>
               <span>Not selected yet</span>
             </div>
           </div>`;
-      }
+          }
 
-      if (sel === 'ABSTAIN') {
-        return `
-          <div onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:rgba(245,158,11,0.06); border:1.5px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg); padding:1rem; cursor:pointer;">
+          if (sel === 'ABSTAIN') {
+            return `
+          <div class="summary-card-item" onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:rgba(245,158,11,0.06); border:1.5px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg); padding:1rem;">
             <div style="font-size:0.75rem; font-weight:700; color:var(--warning); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">${pos}</div>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
               <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -593,16 +1014,16 @@ function updateProgress() {
               <span class="badge badge-warning" style="font-size:0.7rem;">Abstain</span>
             </div>
           </div>`;
-      }
+          }
 
-      const c = allElectionCandidates.find(x => x.id == sel);
-      const photoSrc = c?.photoUrl || c?.photo;
-      const photoHtml = photoSrc
-        ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-        : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
+          const c = allElectionCandidates.find(x => x.id == sel);
+          const photoSrc = c?.photoUrl || c?.photo;
+          const photoHtml = photoSrc
+            ? `<img src="${Utils.photoSrc(photoSrc)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+            : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
 
-      return `
-        <div onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:var(--bg-surface); border:1.5px solid var(--primary); border-radius:var(--radius-lg); padding:1rem; cursor:pointer; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
+          return `
+        <div class="summary-card-item" onclick="document.getElementById('position-group-${idx}')?.scrollIntoView({behavior:'smooth'})" style="background:var(--bg-surface); border:1.5px solid var(--primary); border-radius:var(--radius-lg); padding:1rem; box-shadow:0 2px 8px rgba(99,102,241,0.08);">
           <div style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">${pos}</div>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
             <div style="display:flex; align-items:center; gap:0.6rem; overflow:hidden;">
@@ -615,28 +1036,28 @@ function updateProgress() {
             <span class="badge badge-success" style="font-size:0.7rem; flex-shrink:0;">✓ Picked</span>
           </div>
         </div>`;
-    }).join('');
+        }).join('');
 
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  }
-}
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+    }
 
-/* ─────────────────── Show Confirmation ─────────────────── */
-function showConfirmation() {
-  const listEl = document.getElementById('confirmSelectionsList');
+    /* ─────────────────── Show Confirmation ─────────────────── */
+    function showConfirmation() {
+      const listEl = document.getElementById('confirmSelectionsList');
 
-  listEl.innerHTML = ballotPositions.map(position => {
-    const candId    = currentSelections[position];
-    const isAbstain = candId === 'ABSTAIN';
-    const c         = isAbstain ? null : allElectionCandidates.find(x => x.id == candId);
-    const photoSrc  = c?.photoUrl || c?.photo;
-    const avatarContent = isAbstain
-      ? '⏭️'
-      : (photoSrc
-          ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="${c?.name}">`
-          : `<i data-lucide="user" style="width:20px;height:20px;color:white;"></i>`);
+      listEl.innerHTML = ballotPositions.map(position => {
+        const candId = currentSelections[position];
+        const isAbstain = candId === 'ABSTAIN';
+        const c = isAbstain ? null : allElectionCandidates.find(x => x.id == candId);
+        const photoSrc = c?.photoUrl || c?.photo;
+        const avatarContent = isAbstain
+          ? '⏭️'
+          : (photoSrc
+            ? `<img src="${Utils.photoSrc(photoSrc)}" style="width:100%;height:100%;object-fit:cover;" alt="${c?.name}">`
+            : `<i data-lucide="user" style="width:20px;height:20px;color:white;"></i>`);
 
-    return `
+        return `
       <div class="confirm-row ${isAbstain ? 'abstain' : ''}">
         <div class="confirm-avatar ${isAbstain ? 'abstain-avatar' : ''}">${avatarContent}</div>
         <div class="confirm-info">
@@ -647,50 +1068,50 @@ function showConfirmation() {
           ${isAbstain ? '⏭️ Abstain' : '✓ Selected'}
         </span>
       </div>`;
-  }).join('');
+      }).join('');
 
-  Modal.open('confirmVoteModal');
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-  document.getElementById('finalSubmitBtn').onclick = submitVote;
-}
-
-/* ─────────────────── Submit Vote ─────────────────── */
-async function submitVote() {
-  const session = Auth.getSession();
-  if (!session) { Auth.logout(); return; }
-
-  const btn = document.getElementById('finalSubmitBtn');
-  btn.textContent = 'Submitting...';
-  btn.disabled = true;
-
-  try {
-    const selectionsPayload = {};
-    for (const [pos, val] of Object.entries(currentSelections)) {
-      if (val !== 'ABSTAIN') {
-        selectionsPayload[pos] = val;
-      }
+      Modal.open('confirmVoteModal');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      document.getElementById('finalSubmitBtn').onclick = submitVote;
     }
 
-    const res = await ApiClient.post('/votes/cast', {
-      electionId: activeElection.id,
-      selections: selectionsPayload
-    });
+    /* ─────────────────── Submit Vote ─────────────────── */
+    async function submitVote() {
+      const session = Auth.getSession();
+      if (!session) { Auth.logout(); return; }
 
-    Modal.close('confirmVoteModal');
-    const content = document.getElementById('mainContent');
+      const btn = document.getElementById('finalSubmitBtn');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
 
-    /* Build per-position summary for receipt */
-    const receiptRows = ballotPositions.map(pos => {
-      const cid = currentSelections[pos];
-      if (cid === 'ABSTAIN') return `<tr><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#6b7280;">${pos}</td><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#f59e0b;font-weight:600;">⏭️ Abstained</td></tr>`;
-      return `<tr><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#374151;">${pos}</td><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;"><span style="font-size:0.72rem;background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:99px;font-weight:600;">Voted ✓</span></td></tr>`;
-    }).join('');
+      try {
+        const selectionsPayload = {};
+        for (const [pos, val] of Object.entries(currentSelections)) {
+          if (val !== 'ABSTAIN') {
+            selectionsPayload[pos] = val;
+          }
+        }
 
-    content.innerHTML = `
+        const res = await ApiClient.post('/votes/cast', {
+          electionId: activeElection.id,
+          selections: selectionsPayload
+        });
+
+        Modal.close('confirmVoteModal');
+        const content = document.getElementById('mainContent');
+
+        /* Build per-position summary for receipt */
+        const receiptRows = ballotPositions.map(pos => {
+          const cid = currentSelections[pos];
+          if (cid === 'ABSTAIN') return `<tr><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#6b7280;">${pos}</td><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#f59e0b;font-weight:600;">⏭️ Abstained</td></tr>`;
+          return `<tr><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;color:#374151;">${pos}</td><td style="padding:0.4rem 0;border-bottom:1px solid #e5e7eb;"><span style="font-size:0.72rem;background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:99px;font-weight:600;">Voted ✓</span></td></tr>`;
+        }).join('');
+
+        content.innerHTML = `
       <div class="vote-success" style="margin-top:2rem;">
         <div class="vs-icon">🎉</div>
         <h2 class="vs-title">Vote Submitted Successfully!</h2>
-        <p class="vs-sub">Your vote has been securely recorded. Thank you for participating in the Trac-Fai faculty election.</p>
+        <p class="vs-sub">Your vote has been securely recorded. Thank you for participating in the TRA-FAI faculty election.</p>
         <div class="vs-receipt">
           <div class="vsr-label">Your Vote Receipt Code</div>
           <div class="vsr-code">${res.receiptCode}</div>
@@ -705,28 +1126,48 @@ async function submitVote() {
         </div>
       </div>`;
 
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
 
-    document.getElementById('downloadReceiptBtn')?.addEventListener('click', () => {
-      downloadReceiptPDF(res.receiptCode, session.name, activeElection.title, receiptRows);
-    });
+        document.getElementById('downloadReceiptBtn')?.addEventListener('click', () => {
+          downloadReceiptPDF(res.receiptCode, session.name, activeElection.title, receiptRows);
+        });
 
-    Toast.show('Your vote has been submitted successfully!', 'success');
-  } catch (err) {
-    btn.innerHTML = '<i data-lucide="check-square"></i> Submit My Vote';
-    btn.disabled = false;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    Toast.show(err.message || 'Submission failed. Please try again.', 'error');
-  }
-}
+        Toast.show('Your vote has been submitted successfully!', 'success');
+      } catch (err) {
+        btn.innerHTML = '<i data-lucide="check-square"></i> Submit My Vote';
+        btn.disabled = false;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        Toast.show(err.message || 'Submission failed. Please try again.', 'error');
+      }
+    }
 
-/* ─────────────────── PDF Receipt ─────────────────── */
-function downloadReceiptPDF(receiptCode, voterName, electionTitle, receiptRows) {
-  const now = new Date().toLocaleString('en-PH', { dateStyle: 'long', timeStyle: 'medium' });
+    /* ─────────────────── PDF Receipt ─────────────────── */
+    function downloadReceiptPDF(receiptCode, voterName, electionTitle, receiptRows) {
+      const now = new Date().toLocaleString('en-PH', { dateStyle: 'long', timeStyle: 'medium' });
 
-  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-  <title>Vote Receipt — ${receiptCode}</title>
-  <style>
+      const contentHtml = `
+    <div class="receipt">
+      <div class="watermark">OFFICIAL RECEIPT</div>
+      <div class="logo"><div class="logo-circle">T</div><span class="logo-name">TRA-FAI E-Vote</span></div>
+      <div class="receipt-title">Official Vote Receipt</div>
+      <div class="receipt-sub">TRA-FAI Faculty Voting System — Secure Ballot Confirmation</div>
+      <div class="code-box">
+        <div class="code-label">Unique Receipt Code</div>
+        <div class="code-value">${receiptCode}</div>
+      </div>
+      <div class="info-row"><span class="info-label">Voter</span><span class="info-val">${voterName}</span></div>
+      <div class="info-row"><span class="info-label">Election</span><span class="info-val">${electionTitle}</span></div>
+      <div class="info-row"><span class="info-label">Submitted On</span><span class="info-val">${now}</span></div>
+      <div class="info-row"><span class="info-label">Status</span><span class="info-val" style="color:#22c55e;">✓ Recorded</span></div>
+      <table><thead><tr><th>Position</th><th>Status</th></tr></thead><tbody>${receiptRows}</tbody></table>
+      <div class="footer">
+        This receipt confirms your participation but does not reveal your candidate choices.<br>
+        Keep this code safe — it is proof of your vote.<br>
+        Generated by TRA-FAI Voting System · ${new Date().getFullYear()}
+      </div>
+    </div>`;
+
+      const css = `
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Segoe UI',Arial,sans-serif;background:#f9fafb;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:2rem;}
     .receipt{background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(0,0,0,0.12);padding:2.5rem;max-width:520px;width:100%;position:relative;overflow:hidden;}
@@ -745,38 +1186,22 @@ function downloadReceiptPDF(receiptCode, voterName, electionTitle, receiptRows) 
     th{text-align:left;font-size:0.68rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:0.5rem;}
     .footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e5e7eb;font-size:0.7rem;color:#9ca3af;text-align:center;line-height:1.7;}
     @media print{body{background:#fff;padding:0;}.receipt{box-shadow:none;border-radius:0;}}
-  </style></head><body>
-  <div class="receipt">
-    <div class="watermark">OFFICIAL RECEIPT</div>
-    <div class="logo"><div class="logo-circle">T</div><span class="logo-name">Trac-Fai E-Vote</span></div>
-    <div class="receipt-title">Official Vote Receipt</div>
-    <div class="receipt-sub">Trac-Fai Faculty E-Voting System — Secure Ballot Confirmation</div>
-    <div class="code-box">
-      <div class="code-label">Unique Receipt Code</div>
-      <div class="code-value">${receiptCode}</div>
-    </div>
-    <div class="info-row"><span class="info-label">Voter</span><span class="info-val">${voterName}</span></div>
-    <div class="info-row"><span class="info-label">Election</span><span class="info-val">${electionTitle}</span></div>
-    <div class="info-row"><span class="info-label">Submitted On</span><span class="info-val">${now}</span></div>
-    <div class="info-row"><span class="info-label">Status</span><span class="info-val" style="color:#22c55e;">✓ Recorded</span></div>
-    <table><thead><tr><th>Position</th><th>Status</th></tr></thead><tbody>${receiptRows}</tbody></table>
-    <div class="footer">
-      This receipt confirms your participation but does not reveal your candidate choices.<br>
-      Keep this code safe — it is proof of your vote.<br>
-      Generated by Trac-Fai E-Voting System · ${new Date().getFullYear()}
-    </div>
-  </div>
-  <script>window.onload = () => { window.print(); }<\/script>
-  </body></html>`;
+  `;
 
-  const win = window.open('', '_blank', 'width=640,height=840');
-  if (win) {
-    win.document.write(html);
-    win.document.close();
-  } else {
-    Toast.show('Please allow popups to print the receipt.', 'warning', 5000);
-  }
-}
-</script>
+      const win = window.open('', '_blank', 'width=640,height=840');
+      if (win) {
+        win.document.title = 'Vote Receipt — ' + receiptCode;
+        const styleEl = win.document.createElement('style');
+        styleEl.textContent = css;
+        win.document.head.appendChild(styleEl);
+        win.document.body.innerHTML = contentHtml;
+        win.focus();
+        setTimeout(() => { try { win.print(); } catch (_) { } }, 500);
+      } else {
+        Toast.show('Please allow popups to print the receipt.', 'warning', 5000);
+      }
+    }
+  </script>
 </body>
+
 </html>

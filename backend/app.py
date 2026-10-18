@@ -1,9 +1,15 @@
 """
-TRAC-FAI Voting System — Flask Application Entry Point
+TRA-FAI Voting System — Flask Application Entry Point
 Run: python app.py
 API available at: http://localhost:5000/api
 """
 import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 from models import db
@@ -58,7 +64,23 @@ def create_app():
     # ── Health check ──
     @app.route('/api/health')
     def health():
-        return jsonify({'status': 'ok', 'system': 'TRAC-FAI Voting System'})
+        return jsonify({'status': 'ok', 'system': 'TRA-FAI Voting System'})
+
+    # ── Serve frontend pages and assets ──
+    FRONTEND_DIR = os.path.dirname(BASE_DIR)
+
+    @app.route('/')
+    def serve_index():
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+
+    @app.route('/<path:filename>')
+    def serve_frontend(filename):
+        if filename.startswith('backend') or filename.endswith('.db') or filename.endswith('.py'):
+            return jsonify({'error': 'Forbidden'}), 403
+        file_path = os.path.join(FRONTEND_DIR, filename)
+        if os.path.isfile(file_path):
+            return send_from_directory(FRONTEND_DIR, filename)
+        return jsonify({'error': 'Not found'}), 404
 
     # ── Generic error handlers ──
     @app.errorhandler(404)
@@ -84,8 +106,8 @@ app = create_app()
 
 if __name__ == '__main__':
     print("=" * 60)
-    print(" TRAC-FAI Voting System — Python Backend")
+    print(" TRA-FAI Voting System — Python Backend")
     print(" API: http://localhost:5000/api")
     print(" Uploads: http://localhost:5000/uploads/")
     print("=" * 60)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False, threaded=True)

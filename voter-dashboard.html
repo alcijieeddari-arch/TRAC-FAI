@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Voter Dashboard | Trac-Fai E-Voting System</title>
-  <meta name="description" content="Cast your vote and view election status on the Trac-Fai E-Voting voter dashboard." />
+  <title>Voter Dashboard | TRA-FAI Voting System</title>
+  <meta name="description" content="Cast your vote and view election status on the TRA-FAI Voting System voter dashboard." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -19,9 +19,9 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">
         <div class="logo-icon">
-          <img src="img/logo.png" alt="Trac-Fai Logo" />
+          <img src="img/logo.png" alt="TRA-FAI Logo" />
         </div>
-        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+        <span>TRA-FAI <span class="logo-accent">Vote</span></span>
       </div>
     </div>
 
@@ -52,7 +52,6 @@
           <div class="su-name" id="sidebarName">Loading...</div>
           <div class="su-role">Faculty Voter</div>
         </div>
-        <button class="su-logout" id="logoutBtn2" title="Logout"><i data-lucide="log-out"></i></button>
       </div>
     </div>
   </aside>
@@ -89,7 +88,11 @@
     <div class="dashboard-content">
       <!-- Voter Profile Card -->
       <div class="voter-profile-card" id="voterProfileCard">
-        <div class="vpc-avatar" id="profileAvatar">JD</div>
+        <div style="position:relative; flex-shrink:0;">
+          <div class="vpc-avatar" id="profileAvatar" style="cursor:pointer;" title="Click to upload/change photo">JD</div>
+          <label for="dashPhotoFile" style="position:absolute; bottom:-2px; right:-2px; width:26px; height:26px; border-radius:50%; background:var(--primary); color:#fff; border:2px solid var(--bg-card); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.75rem; box-shadow:0 2px 6px rgba(0,0,0,0.25);" title="Upload your photo">📷</label>
+          <input type="file" id="dashPhotoFile" accept="image/*" style="display:none;" />
+        </div>
         <div class="vpc-info">
           <div class="vpc-name" id="profileName">Loading...</div>
           <div class="vpc-id" id="profileId">Employee ID: —</div>
@@ -106,7 +109,6 @@
         </div>
         <div class="vpc-status">
           <span class="badge badge-success" id="voteStatusBadge"><i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i>Active Voter</span>
-          <a href="voter-vote.html" class="btn-primary btn-sm" id="castVoteBtn"><i data-lucide="check-square"></i> Cast Vote</a>
         </div>
       </div>
 
@@ -154,7 +156,6 @@
         <div class="widget-card">
           <div class="widget-header">
             <span class="widget-title"><i data-lucide="calendar-days"></i> Current Elections</span>
-            <a href="voter-results.html" class="widget-action">View Results <i data-lucide="arrow-right"></i></a>
           </div>
           <div class="widget-body">
             <div id="electionsListVoter">
@@ -172,8 +173,8 @@
             </div>
             <div class="widget-body" style="display: flex; flex-direction: column; gap: 0.75rem;">
               <a href="voter-vote.html" class="btn-primary btn-full" id="quickVoteBtn"><i data-lucide="check-square"></i> Cast My Vote</a>
-              <a href="voter-results.html" class="btn-outline btn-full" style="text-align:center;"><i data-lucide="bar-chart-2"></i> View Results</a>
-              <a href="voter-profile.html" class="btn-ghost btn-full" style="text-align:center;">👤 My Profile</a>
+              <a href="voter-results.html" class="btn-outline btn-full" id="quickResultsBtn" style="text-align:center;"><i data-lucide="bar-chart-2"></i> View Results</a>
+              <a href="voter-profile.html" class="btn-ghost btn-full" style="text-align:center;"><i data-lucide="user"></i> My Profile</a>
             </div>
           </div>
 
@@ -217,15 +218,69 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Populate profile
   const initials = session.name.split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
   const photoUrl = session.photoUrl || localStorage.getItem('tracfai_photo_' + session.id);
-  if (photoUrl) {
-    const src = photoUrl.startsWith('http') || photoUrl.startsWith('data:') ? photoUrl : '/uploads/' + photoUrl;
-    document.getElementById('profileAvatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    document.getElementById('sidebarAvatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    document.getElementById('sidebarAvatar').style.padding = '0';
-  } else {
-    document.getElementById('profileAvatar').textContent = initials;
-    document.getElementById('sidebarAvatar').textContent = initials;
+
+  function updateAvatars(url) {
+    if (url) {
+      const src = Utils.photoSrc(url);
+      document.getElementById('profileAvatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      document.getElementById('sidebarAvatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      document.getElementById('sidebarAvatar').style.padding = '0';
+    } else {
+      document.getElementById('profileAvatar').textContent = initials;
+      document.getElementById('sidebarAvatar').textContent = initials;
+      document.getElementById('sidebarAvatar').style.padding = '';
+    }
   }
+  updateAvatars(photoUrl);
+
+  // Quick photo upload from dashboard
+  document.getElementById('profileAvatar').addEventListener('click', () => {
+    document.getElementById('dashPhotoFile').click();
+  });
+  document.getElementById('dashPhotoFile').addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { Toast.show('Image must be under 5MB.', 'error'); this.value = ''; return; }
+    if (!file.type.startsWith('image/')) { Toast.show('Please select a valid image.', 'error'); this.value = ''; return; }
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target.result;
+      localStorage.setItem('tracfai_photo_' + session.id, dataUrl);
+      session.photoUrl = dataUrl;
+      localStorage.setItem('trafai_session', JSON.stringify(session));
+      localStorage.setItem('tracfai_session', JSON.stringify(session));
+      updateAvatars(dataUrl);
+
+      try {
+        const formData = new FormData();
+        formData.append('photo', file);
+        const res = await ApiClient.upload('/voters/upload-photo', formData);
+        if (res.photoUrl) {
+          session.photoUrl = res.photoUrl;
+          localStorage.setItem('trafai_session', JSON.stringify(session));
+          localStorage.setItem('tracfai_session', JSON.stringify(session));
+          localStorage.setItem('tracfai_photo_' + session.id, res.photoUrl);
+          updateAvatars(res.photoUrl);
+        }
+      } catch (_) {
+        try {
+          const res2 = await ApiClient.post('/voters/upload-photo', { photoUrl: dataUrl });
+          if (res2.photoUrl) {
+            session.photoUrl = res2.photoUrl;
+            localStorage.setItem('trafai_session', JSON.stringify(session));
+            localStorage.setItem('tracfai_session', JSON.stringify(session));
+          }
+        } catch (e) {
+          console.warn('Backend photo upload fallback:', e);
+        }
+      }
+
+      Toast.show('Profile photo updated successfully!', 'success');
+    };
+    reader.readAsDataURL(file);
+  });
+
   document.getElementById('profileName').textContent = session.name;
   document.getElementById('sidebarName').textContent = session.name;
   document.getElementById('profileId').textContent = 'Employee ID: ' + (session.employeeId || 'FAC-' + session.id.toString().padStart(4,'0'));
@@ -256,14 +311,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('statTotalCandidates').textContent = candidates.filter(c => c.electionId === activeElection?.id).length;
   document.getElementById('statPositions').textContent = activeElection ? (activeElection.positions || []).length : 0;
 
-  // Vote badge
+  // Vote status & Quick Actions
+  const qrBtn = document.getElementById('quickResultsBtn');
   if (hasVoted) {
     document.getElementById('voteStatusBadge').className = 'badge badge-success';
     document.getElementById('voteStatusBadge').innerHTML = '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i> Voted';
-    document.getElementById('castVoteBtn').innerHTML = '<i data-lucide="bar-chart-2"></i> View Results';
-    document.getElementById('castVoteBtn').href = 'voter-results.html';
     document.getElementById('quickVoteBtn').innerHTML = '<i data-lucide="bar-chart-2"></i> View Results';
     document.getElementById('quickVoteBtn').href = 'voter-results.html';
+    if (qrBtn) qrBtn.style.display = 'none';
 
     if (myReceiptCode) {
       document.getElementById('receiptWidget').style.display = '';
@@ -272,10 +327,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else {
     document.getElementById('voteStatusBadge').className = 'badge badge-warning';
     document.getElementById('voteStatusBadge').innerHTML = '<i data-lucide="clock" style="width:11px;height:11px;margin-right:3px;vertical-align:middle;"></i> Not Voted';
-    document.getElementById('castVoteBtn').innerHTML = '<i data-lucide="check-square"></i> Cast Your Vote';
-    document.getElementById('castVoteBtn').href = 'voter-vote.html';
     document.getElementById('quickVoteBtn').innerHTML = '<i data-lucide="check-square"></i> Cast My Vote';
     document.getElementById('quickVoteBtn').href = 'voter-vote.html';
+    if (qrBtn) qrBtn.style.display = '';
     document.getElementById('receiptWidget').style.display = 'none';
   }
 

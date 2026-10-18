@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard | Trac-Fai E-Voting System</title>
+  <title>Admin Dashboard | TRA-FAI Voting System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -12,7 +12,8 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
 
 <body>
   <div class="dashboard-layout">
@@ -22,35 +23,42 @@
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <div class="logo-icon">
-            <img src="img/logo.png" alt="Trac-Fai Logo" />
+            <img src="img/logo.png" alt="TRA-FAI Logo" />
           </div>
-          <span>Trac-Fai <span class="logo-accent">Admin</span></span>
+          <span>TRA-FAI <span class="logo-accent">Admin</span></span>
         </div>
       </div>
       <nav class="sidebar-nav">
         <div class="nav-section-label">Dashboard</div>
-        <a href="admin-dashboard.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span>
+        <a href="admin-dashboard.html" class="sidebar-link active"><span class="sidebar-link-icon"><i
+              data-lucide="layout-dashboard"></i></span>
           Overview</a>
         <div class="nav-section-label">Elections</div>
-        <a href="admin-elections.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Manage
+        <a href="admin-elections.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="vote"></i></span> Manage
           Elections</a>
-        <a href="admin-candidates.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="users"></i></span> Candidates</a>
-        <a href="admin-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Results &
+        <a href="admin-candidates.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="users"></i></span> Candidates</a>
+        <a href="admin-results.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="bar-chart-2"></i></span> Results &
           Reports</a>
         <div class="nav-section-label">Users</div>
-        <a href="admin-voters.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="user-check"></i></span> Voter Management</a>
+        <a href="admin-voters.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="user-check"></i></span> Voter Management</a>
         <div class="nav-section-label">System</div>
-        <a href="admin-audit.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="clipboard-list"></i></span> Audit Log</a>
-        <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+        <a href="admin-audit.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="clipboard-list"></i></span> Audit Log</a>
+        <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i
+              data-lucide="log-out"></i></span> Logout</a>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
           <div class="su-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">AD</div>
           <div class="su-info">
             <div class="su-name" id="sidebarName">Administrator</div>
-            <div class="su-role" style="color:var(--warning);"><i data-lucide="settings" style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
+            <div class="su-role" style="color:var(--warning);"><i data-lucide="settings"
+                style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
           </div>
-          <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
         </div>
       </div>
     </aside>
@@ -64,8 +72,8 @@
           <div class="breadcrumb-sub">Election monitoring & analytics</div>
         </div>
         <div class="topbar-actions">
-          <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings"
-            aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+          <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i
+              data-lucide="sliders-horizontal"></i></button>
           <button class="btn-theme-toggle topbar-btn" id="themeToggle">
             <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2">
@@ -85,7 +93,8 @@
               style="display:none; position:absolute; right:0; top:110%; width:320px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0; z-index:100; max-height:360px; overflow-y:auto;">
               <div
                 style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:0.85rem;">
-                <i data-lucide="bell"></i> Recent Notifications</div>
+                <i data-lucide="bell"></i> Recent Notifications
+              </div>
               <div id="notifList" style="padding:0.5rem;"></div>
             </div>
           </div>
@@ -94,7 +103,7 @@
 
       <div class="dashboard-content">
         <!-- Welcome Banner -->
-        <div
+        <div class="admin-welcome-banner"
           style="background: var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem 2rem; margin-bottom:2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
           <div>
             <h1 style="font-size:1.3rem; margin-bottom:0.25rem;">Welcome back, <span id="adminWelcomeName"
@@ -103,7 +112,7 @@
             </p>
           </div>
           <div style="display:flex; gap:0.75rem;">
-            <button class="btn-primary btn-sm" onclick="exportDashboardCSV()"><i data-lucide="download"></i> Export Report</button>
+            <button class="btn-primary btn-sm" onclick="exportDashboardCSV()"><i data-lucide="download"></i> Export CSV</button>
           </div>
         </div>
 
@@ -120,7 +129,8 @@
           <div class="stat-widget green">
             <div class="sw-header">
               <div class="sw-icon green"><i data-lucide="check-circle-2"></i></div>
-              <span class="sw-trend up" id="statTurnoutTrend"><i data-lucide="trending-up" style="width:12px;height:12px;"></i> —</span>
+              <span class="sw-trend up" id="statTurnoutTrend"><i data-lucide="trending-up"
+                  style="width:12px;height:12px;"></i> —</span>
             </div>
             <div class="sw-value" id="statVotesCast">—</div>
             <div class="sw-label">Votes Cast</div>
@@ -197,8 +207,10 @@
                 <span class="widget-title"><i data-lucide="zap"></i> Admin Actions</span>
               </div>
               <div class="widget-body" style="display:flex; flex-direction:column; gap:0.6rem;">
-                <a href="admin-voters.html" class="btn-primary btn-sm" style="text-align:center;"><i data-lucide="plus"></i> Add Voter</a>
-                <a href="admin-results.html" class="btn-ghost btn-sm" style="text-align:center;"><i data-lucide="file-text"></i> Export Results</a>
+                <a href="admin-elections.html" class="btn-primary btn-sm" style="text-align:center;"><i
+                    data-lucide="plus-circle"></i> Create Election</a>
+                <a href="admin-voters.html" class="btn-outline btn-sm" style="text-align:center;"><i
+                    data-lucide="user-plus"></i> Add Voter</a>
               </div>
             </div>
           </div>
@@ -208,7 +220,6 @@
         <div class="widget-card" style="margin-bottom:1.25rem;">
           <div class="widget-header">
             <span class="widget-title"><i data-lucide="check-square"></i> All Elections</span>
-            <a href="admin-elections.html" class="widget-action">Manage →</a>
           </div>
           <div class="table-responsive">
             <table class="data-table" id="electionsTable">
@@ -246,7 +257,8 @@
         </div>
       </div>
     </main>
-  </div>  <script src="js/api.js"></script>
+  </div>
+  <script src="js/api.js"></script>
 
   <script src="js/main.js"></script>
   <script>
@@ -294,7 +306,7 @@
             totalVoted = res.totalVotes || 0;
             results = res.results || [];
             totalVoters = activeElection.totalVoters || dashboardVoters.length || 1;
-          } catch (_) {}
+          } catch (_) { }
         }
 
         const turnoutPct = Utils.percent(totalVoted, totalVoters);
@@ -340,24 +352,27 @@
                 <div style="margin-bottom:1rem;">
                   <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.5px;">${pos}</div>
                   ${posCandidates.map((c, i) => {
-                    const votes = c.votes || 0;
-                    const pct = leaderVotes > 0 ? Math.round((votes / leaderVotes) * 100) : 0;
-                    const photoHtml = c.photoUrl
-                      ? `<img src="${c.photoUrl.startsWith('http') ? c.photoUrl : '/uploads/' + c.photoUrl}" style="width:100%;height:100%;object-fit:cover;">`
-                      : `<i data-lucide="user" style="width:12px;height:12px;color:white;"></i>`;
+                const votes = c.votes || 0;
+                const pct = leaderVotes > 0 ? Math.round((votes / leaderVotes) * 100) : 0;
+                const initials = (c.name || '?').split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
+                const src = Utils.photoSrc(c.photoUrl || c.photo);
+                const isLeader = i === 0 && votes > 0;
+                const photoHtml = src
+                  ? `<img src="${src}" alt="${c.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.replaceWith(document.createTextNode('${initials}'))">`
+                  : initials;
 
-                    return `
-                      <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem;">
-                        <div style="font-size:0.85rem; width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:0.4rem;">
-                          <span style="width:22px;height:22px;border-radius:50%;background:var(--primary);border:1px solid var(--border);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0;">${photoHtml}</span>
-                          ${i === 0 && votes > 0 ? '<i data-lucide="trophy" style="width:14px;height:14px;color:#f59e0b;vertical-align:middle;"></i> ' : ''}${c.name}
+                return `
+                      <div style="display:flex; align-items:center; gap:0.7rem; margin-bottom:0.6rem;">
+                        <span class="tally-avatar" title="${c.name}" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-light,#6366f1));box-shadow:0 0 0 2px ${isLeader ? '#f59e0b' : 'var(--border)'};">${photoHtml}</span>
+                        <div style="font-size:0.85rem; width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:0.35rem;">
+                          ${isLeader ? '<i data-lucide="trophy" style="width:14px;height:14px;color:#f59e0b;flex-shrink:0;"></i>' : ''}<span style="overflow:hidden;text-overflow:ellipsis;">${c.name}</span>
                         </div>
                         <div class="vc-bar" style="flex:1; height:6px;">
                           <div class="vc-bar-fill" style="width:${pct}%"></div>
                         </div>
                         <div style="font-size:0.82rem; font-weight:700; width:30px; text-align:right;">${votes}</div>
                       </div>`;
-                  }).join('')}
+              }).join('')}
                 </div>`;
             });
             tallyEl.innerHTML = tallyHtml;
@@ -376,9 +391,9 @@
             const statusClass = e.status === 'ongoing' ? 'badge-success' : e.status === 'upcoming' ? 'badge-warning' : 'badge-muted';
             const statusText = e.status === 'ongoing' ? '<i data-lucide="radio" style="width:11px;height:11px;margin-right:3px;"></i>Ongoing'
               : e.status === 'upcoming' ? '<i data-lucide="clock" style="width:11px;height:11px;margin-right:3px;"></i>Upcoming'
-              : '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;"></i>Closed';
+                : '<i data-lucide="check-circle" style="width:11px;height:11px;margin-right:3px;"></i>Closed';
             const positions = Array.isArray(e.positions) ? e.positions : (e.positions || '').split(',').map(p => p.trim()).filter(Boolean);
-            const deadlineFmt = e.endDate ? new Date(e.endDate).toLocaleDateString('en-PH', {month:'short',day:'numeric',year:'numeric'}) : '—';
+            const deadlineFmt = e.endDate ? new Date(e.endDate).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
             return `<tr>
               <td><strong>${e.title}</strong></td>
@@ -444,8 +459,8 @@
           list.innerHTML = dashboardLogs.slice(0, 8).map(l => {
             const icon = (l.action || '').includes('VOTE') ? '<i data-lucide="check-square"></i>'
               : (l.action || '').includes('LOGIN') ? '<i data-lucide="key-round"></i>'
-              : (l.action || '').includes('ELECTION') ? '<i data-lucide="clipboard-list"></i>'
-              : '<i data-lucide="settings"></i>';
+                : (l.action || '').includes('ELECTION') ? '<i data-lucide="clipboard-list"></i>'
+                  : '<i data-lucide="settings"></i>';
             return `
               <div style="padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);font-size:0.8rem;display:flex;gap:0.5rem;align-items:flex-start;">
                 <span style="flex-shrink:0;">${icon}</span>
@@ -485,11 +500,11 @@
                 rows.push([election.title, pos, idx + 1, c.name, c.party || '—', c.department || '—', c.votes || 0, `${c.percentage || 0}%`]);
               });
             });
-          } catch (_) {}
+          } catch (_) { }
         }
 
         Utils.exportCSV(
-          `TracFai-Dashboard-Report-${new Date().toISOString().slice(0, 10)}.csv`,
+          `TRA-FAI-Dashboard-Report-${new Date().toISOString().slice(0, 10)}.csv`,
           ['Election', 'Position', 'Rank', 'Candidate', 'Party', 'Department', 'Votes', 'Percentage'],
           rows
         );

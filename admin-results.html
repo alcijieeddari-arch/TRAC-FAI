@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Results & Reports | Trac-Fai Admin</title>
+  <title>Results & Reports | TRA-FAI Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -41,7 +41,8 @@
       margin-bottom: 1.5rem;
     }
   </style>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script></head>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
 
 <body>
   <div class="dashboard-layout">
@@ -49,34 +50,41 @@
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <div class="logo-icon">
-            <img src="img/logo.png" alt="Trac-Fai Logo" />
+            <img src="img/logo.png" alt="TRA-FAI Logo" />
           </div>
-          <span>Trac-Fai <span class="logo-accent">Admin</span></span>
+          <span>TRA-FAI <span class="logo-accent">Admin</span></span>
         </div>
       </div>
       <nav class="sidebar-nav">
         <div class="nav-section-label">Dashboard</div>
-        <a href="admin-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span> Overview</a>
+        <a href="admin-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="layout-dashboard"></i></span> Overview</a>
         <div class="nav-section-label">Elections</div>
-        <a href="admin-elections.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="vote"></i></span> Manage
+        <a href="admin-elections.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="vote"></i></span> Manage
           Elections</a>
-        <a href="admin-candidates.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="users"></i></span> Candidates</a>
-        <a href="admin-results.html" class="sidebar-link active"><span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span> Results &
+        <a href="admin-candidates.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="users"></i></span> Candidates</a>
+        <a href="admin-results.html" class="sidebar-link active"><span class="sidebar-link-icon"><i
+              data-lucide="bar-chart-2"></i></span> Results &
           Reports</a>
         <div class="nav-section-label">Users</div>
-        <a href="admin-voters.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="user-check"></i></span> Voter Management</a>
+        <a href="admin-voters.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="user-check"></i></span> Voter Management</a>
         <div class="nav-section-label">System</div>
-        <a href="admin-audit.html" class="sidebar-link"><span class="sidebar-link-icon"><i data-lucide="clipboard-list"></i></span> Audit Log</a>
-        <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i data-lucide="log-out"></i></span> Logout</a>
+        <a href="admin-audit.html" class="sidebar-link"><span class="sidebar-link-icon"><i
+              data-lucide="clipboard-list"></i></span> Audit Log</a>
+        <a href="#" class="sidebar-link" id="logoutBtn"><span class="sidebar-link-icon"><i
+              data-lucide="log-out"></i></span> Logout</a>
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
           <div class="su-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">AD</div>
           <div class="su-info">
             <div class="su-name" id="sidebarName">Administrator</div>
-            <div class="su-role" style="color:var(--warning);"><i data-lucide="settings" style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
+            <div class="su-role" style="color:var(--warning);"><i data-lucide="settings"
+                style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
           </div>
-          <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
         </div>
       </div>
     </aside>
@@ -89,8 +97,8 @@
           <div class="breadcrumb-sub">Tabulated election results</div>
         </div>
         <div class="topbar-actions">
-          <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings"
-            aria-label="Settings"><i data-lucide="sliders-horizontal"></i></button>
+          <button class="topbar-btn" data-open-prefs title="Display & Accessibility Settings" aria-label="Settings"><i
+              data-lucide="sliders-horizontal"></i></button>
           <button class="btn-theme-toggle topbar-btn" id="themeToggle">
             <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2">
@@ -111,7 +119,7 @@
       <div class="dashboard-content">
         <!-- Print Header -->
         <div class="print-header">
-          <h1>Trac-Fai E-Voting System — Official Election Results</h1>
+          <h1>TRA-FAI Voting System — Official Election Results</h1>
           <p>Generated: <span id="printDate"></span> | System Administrator</p>
         </div>
 
@@ -130,7 +138,8 @@
         </div>
       </div>
     </main>
-  </div>  <script src="js/api.js"></script>
+  </div>
+  <script src="js/api.js"></script>
 
   <script src="js/main.js"></script>
   <script>
@@ -177,7 +186,7 @@
           try {
             const res = await ApiClient.get(`/votes/results/${e.id}`);
             electionResultsData[e.id] = res;
-          } catch (_) {}
+          } catch (_) { }
         }));
 
         renderResultsUI();
@@ -257,22 +266,22 @@
         const maxVotes = winnerVotes;
         const winnerPhotoSrc = winner.photoUrl || winner.photo;
         const photoHtml = winnerPhotoSrc
-          ? `<img src="${winnerPhotoSrc.startsWith('http') || winnerPhotoSrc.startsWith('data:') ? winnerPhotoSrc : '/uploads/' + winnerPhotoSrc}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">`
+          ? `<img src="${Utils.photoSrc(winnerPhotoSrc)}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">`
           : `<i data-lucide="user" style="width:28px;height:28px;color:white;"></i>`;
 
         html += `
           <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.25rem;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
               <h3 style="font-size:1rem;">${position}</h3>
-              ${winnerVotes > 0 ? `<span class="badge badge-success"><i data-lucide="trophy"></i> Leader: ${winner.name}</span>` : ''}
+              ${winnerVotes > 0 ? `<span class="badge badge-success"><span style="font-weight:800; margin-right:3px;">#1</span> Leading: ${winner.name}</span>` : ''}
             </div>
 
             ${winnerVotes > 0 ? `
             <div class="result-winner-banner" style="margin-bottom:1rem;">
-              <div class="rwb-crown"><i data-lucide="crown" style="width:18px;height:18px;color:#f59e0b;"></i></div>
+              <div class="rwb-crown" style="font-weight:900; font-size:1.4rem; color:#f59e0b; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; background:rgba(245,158,11,0.15); border:1.5px solid rgba(245,158,11,0.35); flex-shrink:0;">#1</div>
               <div style="width:52px; height:52px; border-radius:50%; background:var(--primary); border:2px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${photoHtml}</div>
               <div>
-                <div class="rwb-label"><i data-lucide="trophy"></i> Current Leader</div>
+                <div class="rwb-label">Current Leading</div>
                 <div class="rwb-name">${winner.name}</div>
                 <div style="font-size:0.75rem; color:var(--text-muted);">${winner.party || 'Independent'} • ${winner.department || '—'}</div>
               </div>
@@ -296,18 +305,18 @@
               </thead>
               <tbody>
                 ${positionCandidates.map((c, i) => {
-                  const votes = c.votes || 0;
-                  const pct = c.percentage || Utils.percent(votes, totalVoted || 1);
-                  const barPct = maxVotes > 0 ? Math.round((votes / maxVotes) * 100) : 0;
-                  const rank = i === 0 ? '<i data-lucide="trophy" style="width:14px;height:14px;color:#f59e0b;vertical-align:middle;"></i>' : i === 1 ? '<i data-lucide="medal" style="width:14px;height:14px;color:#94a3b8;vertical-align:middle;"></i>' : i === 2 ? '<i data-lucide="medal" style="width:14px;height:14px;color:#cd7f32;vertical-align:middle;"></i>' : `#${i + 1}`;
-                  const cPhotoSrc = c.photoUrl || c.photo;
-                  const cPhoto = cPhotoSrc
-                    ? `<img src="${cPhotoSrc.startsWith('http') || cPhotoSrc.startsWith('data:') ? cPhotoSrc : '/uploads/' + cPhotoSrc}" style="width:100%;height:100%;object-fit:cover;">`
-                    : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
+          const votes = c.votes || 0;
+          const pct = c.percentage || Utils.percent(votes, totalVoted || 1);
+          const barPct = maxVotes > 0 ? Math.round((votes / maxVotes) * 100) : 0;
+          const rank = `#${i + 1}`;
+          const cPhotoSrc = c.photoUrl || c.photo;
+          const cPhoto = cPhotoSrc
+            ? `<img src="${Utils.photoSrc(cPhotoSrc)}" style="width:100%;height:100%;object-fit:cover;">`
+            : `<i data-lucide="user" style="width:14px;height:14px;color:white;"></i>`;
 
-                  return `
+          return `
                     <tr>
-                      <td style="font-weight:700; font-size:1rem;">${rank}</td>
+                      <td style="font-weight:700; font-size:1rem; color:${i === 0 ? 'var(--primary-light)' : 'inherit'};">${rank}</td>
                       <td>
                         <div style="display:flex; align-items:center; gap:0.6rem;">
                           <span style="width:28px;height:28px;border-radius:50%;background:var(--primary);border:1px solid var(--border);overflow:hidden;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0;">${cPhoto}</span>
@@ -324,7 +333,7 @@
                         <div class="vc-bar"><div class="chart-bar-fill" data-w="${barPct}%" style="width:0%; height:8px; background:${i === 0 ? 'var(--primary)' : 'rgba(99,102,241,0.4)'}; border-radius:4px; transition:width 1s ease;"></div></div>
                       </td>
                     </tr>`;
-                }).join('')}
+        }).join('')}
               </tbody>
             </table>
           </div>`;
@@ -351,7 +360,7 @@
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `TracFai-Election-Results-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.download = `TRA-FAI-Election-Results-${new Date().toISOString().slice(0, 10)}.csv`;
       link.click();
       Toast.show('CSV report exported!', 'success');
     }

@@ -1,18 +1,18 @@
 /**
- * ===== TRAC-FAI VOTING SYSTEM — SHARED JS =====
+ * ===== TRA-FAI VOTING SYSTEM — SHARED JS =====
  * Handles: Theme, Toast, Modal, Auth Session, Utility Functions
  */
 
 // ===== USER PREFERENCES & ACCESSIBILITY MANAGER =====
 const PreferenceManager = {
-  THEME_KEY: 'tracfai_theme',
-  FONT_SIZE_KEY: 'tracfai_fontsize',
-  DENSITY_KEY: 'tracfai_density',
-  MOTION_KEY: 'tracfai_motion',
+  THEME_KEY: 'trafai_theme',
+  FONT_SIZE_KEY: 'trafai_fontsize',
+  DENSITY_KEY: 'trafai_density',
+  MOTION_KEY: 'trafai_motion',
 
   init() {
     // 1. Theme (light, dark, contrast)
-    const savedTheme = localStorage.getItem(this.THEME_KEY) || localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem(this.THEME_KEY) || localStorage.getItem('tracfai_theme') || localStorage.getItem('theme') || 'light';
     this.setTheme(savedTheme);
 
     // 2. Font Size (normal, medium, large, xlarge)
@@ -271,7 +271,8 @@ const Modal = {
 
 // ===== AUTH SESSION (Backend-connected) =====
 const Auth = {
-  SESSION_KEY: 'tracfai_session',
+  SESSION_KEY: 'trafai_session',
+  OLD_SESSION_KEY: 'tracfai_session',
   INACTIVITY_LIMIT: 30 * 60 * 1000,
 
   // ── Password strength checker (still client-side for UX) ──
@@ -305,16 +306,22 @@ const Auth = {
       // Store token for subsequent requests
       ApiClient.setToken(res.token);
       // Cache session locally for quick getSession() access
+      // Also persist the token inside the session so it survives page reloads
       const session = {
         ...res.user,
+        token: res.token,
         loginTime: new Date().toISOString(),
         lastActivity: Date.now()
       };
       localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+      // ── Save credentials for offline login fallback ──
+      if (typeof OfflineAuth !== 'undefined') {
+        OfflineAuth.save(username, password, session);
+      }
       return { success: true, user: session };
     } catch (err) {
       const data = err.data || {};
-      return { success: false, error: err.message, roleMismatch: data.roleMismatch || false };
+      return { success: false, error: err.message, roleMismatch: data.roleMismatch || false, isOffline: err.isOffline || false };
     }
   },
 
@@ -328,7 +335,7 @@ const Auth = {
 
   // ── Get cached session ──
   getSession() {
-    const stored = localStorage.getItem(this.SESSION_KEY);
+    const stored = localStorage.getItem(this.SESSION_KEY) || localStorage.getItem(this.OLD_SESSION_KEY);
     if (!stored) return null;
     const session = JSON.parse(stored);
     if (session.lastActivity && (Date.now() - session.lastActivity) > this.INACTIVITY_LIMIT) {
@@ -371,12 +378,22 @@ const Auth = {
       window.location.href = session.role === 'admin' ? 'admin-dashboard.html' : 'voter-dashboard.html';
       return null;
     }
-    // Make sure ApiClient has the token (restored after page refresh)
+    // Restore the token into ApiClient memory from the cached session.
+    // This handles page reloads and server restarts gracefully — the token
+    // is persisted inside the session JSON so it never needs to be re-fetched.
     if (!ApiClient.getToken()) {
-      // Token lost (server restart wipes in-memory tokens) — force re-login
-      localStorage.removeItem(this.SESSION_KEY);
-      window.location.href = 'login.html';
-      return null;
+      if (session.token) {
+        // Restore persisted token — works after server restarts or page reloads
+        ApiClient.setToken(session.token);
+      } else if (session.offlineLogin) {
+        // Offline login — no token available, API calls will fail gracefully
+        // but the user can still navigate the UI
+      } else {
+        // No token at all and no offline flag — may be an old session format.
+        // Keep the session alive; the backend will reject protected API calls
+        // with 401 and we will handle those gracefully rather than force logout.
+        // Do NOT redirect to login — that causes the loop the user reported.
+      }
     }
     this.startInactivityMonitor();
     return session;
@@ -641,6 +658,18 @@ const Utils = {
   },
   generateId() { return Date.now() + Math.floor(Math.random() * 1000); },
   percent(part, total) { return total === 0 ? 0 : Math.round((part / total) * 100); },
+
+  // Resolve a stored photo value into a usable <img src>.
+  // Handles base64 data URIs, absolute URLs, and uploaded filenames
+  // (which live on the Flask backend, not the Live Server origin).
+  photoSrc(photo) {
+    if (!photo || typeof photo !== 'string') return '';
+    const p = photo.trim();
+    if (/^(data:|https?:|blob:)/i.test(p)) return p;
+    const backend = (typeof _activeBase !== 'undefined' ? _activeBase : 'http://127.0.0.1:5000/api').replace(/\/api\/?$/, '');
+    const path = p.replace(/^\/+/, '').replace(/^uploads\//, '');
+    return `${backend}/uploads/${path}`;
+  },
 
   // Download data as a CSV file
   exportCSV(filename, headers, rows) {

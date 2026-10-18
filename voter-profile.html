@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Profile | Trac-Fai E-Voting System</title>
+  <title>My Profile | TRA-FAI Voting System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -16,9 +16,9 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">
         <div class="logo-icon">
-          <img src="img/logo.png" alt="Trac-Fai Logo" />
+          <img src="img/logo.png" alt="TRA-FAI Logo" />
         </div>
-        <span>Trac-Fai <span class="logo-accent">Vote</span></span>
+        <span>TRA-FAI <span class="logo-accent">Vote</span></span>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -37,7 +37,6 @@
           <div class="su-name" id="sidebarName">Loading...</div>
           <div class="su-role">Faculty Voter</div>
         </div>
-        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
       </div>
     </div>
   </aside>
@@ -189,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bigAvatar = document.getElementById('bigAvatar');
     const sidebarAvatar = document.getElementById('sidebarAvatar');
     if (photo) {
-      const src = photo.startsWith('http') || photo.startsWith('data:') ? photo : '/uploads/' + photo;
+      const src = Utils.photoSrc(photo);
       bigAvatar.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
       sidebarAvatar.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
       sidebarAvatar.style.padding = '0';
@@ -221,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const dataUrl = ev.target.result;
       localStorage.setItem(PHOTO_KEY + session.id, dataUrl);
       session.photoUrl = dataUrl;
+      localStorage.setItem('trafai_session', JSON.stringify(session));
       localStorage.setItem('tracfai_session', JSON.stringify(session));
       loadProfilePhoto();
 
@@ -231,12 +231,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await ApiClient.upload('/voters/upload-photo', formData);
         if (res.photoUrl) {
           session.photoUrl = res.photoUrl;
+          localStorage.setItem('trafai_session', JSON.stringify(session));
           localStorage.setItem('tracfai_session', JSON.stringify(session));
           localStorage.setItem(PHOTO_KEY + session.id, res.photoUrl);
         }
       } catch (_) {
         try {
-          await ApiClient.post('/voters/upload-photo', { photoUrl: dataUrl });
+          const res2 = await ApiClient.post('/voters/upload-photo', { photoUrl: dataUrl });
+          if (res2.photoUrl) {
+            session.photoUrl = res2.photoUrl;
+            localStorage.setItem('trafai_session', JSON.stringify(session));
+            localStorage.setItem('tracfai_session', JSON.stringify(session));
+          }
         } catch (e) {
           console.warn('Backend photo upload fallback:', e);
         }
@@ -251,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('removeProfilePhoto').addEventListener('click', async function() {
     localStorage.removeItem(PHOTO_KEY + session.id);
     session.photoUrl = null;
+    localStorage.setItem('trafai_session', JSON.stringify(session));
     localStorage.setItem('tracfai_session', JSON.stringify(session));
     document.getElementById('profilePhotoFile').value = '';
     loadProfilePhoto();

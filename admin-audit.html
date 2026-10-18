@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Audit Log | Trac-Fai Admin</title>
+  <title>Audit Log | TRA-FAI Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -18,8 +18,8 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <div class="logo-icon"><img src="img/logo.png" alt="Trac-Fai Logo" /></div>
-          <span>Trac-Fai <span class="logo-accent">Admin</span></span>
+          <div class="logo-icon"><img src="img/logo.png" alt="TRA-FAI Logo" /></div>
+          <span>TRA-FAI <span class="logo-accent">Admin</span></span>
         </div>
       </div>
       <nav class="sidebar-nav">
@@ -42,7 +42,6 @@
             <div class="su-name" id="sidebarName">Administrator</div>
             <div class="su-role" style="color:var(--warning);"><i data-lucide="settings" style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
           </div>
-          <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
         </div>
       </div>
     </aside>
@@ -231,7 +230,7 @@
         return [ts, l.action, l.description || '', l.userName || '', l.ip || '—'];
       });
       Utils.exportCSV(
-        `TracFai-AuditLog-${new Date().toISOString().slice(0, 10)}.csv`,
+        `TRA-FAI-AuditLog-${new Date().toISOString().slice(0, 10)}.csv`,
         ['Timestamp', 'Action', 'Description', 'User', 'IP Address'],
         rows
       );

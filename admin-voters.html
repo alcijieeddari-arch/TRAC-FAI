@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Voter Management | Trac-Fai Admin</title>
+  <title>Voter Management | TRA-FAI Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -16,9 +16,9 @@
     <div class="sidebar-header">
         <div class="sidebar-logo">
           <div class="logo-icon">
-            <img src="img/logo.png" alt="Trac-Fai Logo" />
+            <img src="img/logo.png" alt="TRA-FAI Logo" />
           </div>
-          <span>Trac-Fai <span class="logo-accent">Admin</span></span>
+          <span>TRA-FAI <span class="logo-accent">Admin</span></span>
         </div>
     </div>
     <nav class="sidebar-nav">
@@ -41,7 +41,6 @@
           <div class="su-name" id="sidebarName">Administrator</div>
           <div class="su-role" style="color:var(--warning);"><i data-lucide="settings" style="width:12px;height:12px;margin-right:3px;"></i>Admin</div>
         </div>
-        <button class="su-logout" id="logoutBtn2"><i data-lucide="log-out"></i></button>
       </div>
     </div>
   </aside>
@@ -136,6 +135,23 @@
     </div>
     <form id="voterForm" style="display:flex; flex-direction:column; gap:1rem;">
       <input type="hidden" id="voterId" />
+
+      <!-- Photo Upload -->
+      <div style="display:flex; align-items:center; gap:1.25rem; padding:1rem; background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-md);">
+        <div id="voterPhotoPreview" style="width:72px; height:72px; border-radius:50%; background:var(--primary); border:2px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="user" style="width:32px;height:32px;color:white;"></i>
+        </div>
+        <div style="flex:1;">
+          <label style="font-size:0.85rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:0.4rem;">Voter Photo</label>
+          <label for="voterPhotoFile" style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.45rem 1rem; background:var(--bg-card); border:1.5px solid var(--border); border-radius:var(--radius-full); font-size:0.82rem; color:var(--text-primary); cursor:pointer; font-weight:500;">
+            <i data-lucide="camera" style="width:14px;height:14px;"></i> Choose Photo
+          </label>
+          <input type="file" id="voterPhotoFile" accept="image/*" style="display:none;" />
+          <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.4rem;">JPG, PNG, WEBP · Max 2MB</div>
+          <button type="button" id="removeVoterPhotoBtn" style="display:none; margin-top:0.4rem; font-size:0.75rem; color:var(--danger); background:none; border:none; cursor:pointer; padding:0;"><i data-lucide="x"></i> Remove photo</button>
+        </div>
+      </div>
+
       <div class="form-grid-2">
         <div class="form-group">
           <label for="voterName">Full Name *</label>
@@ -149,7 +165,7 @@
       <div class="form-grid-2">
         <div class="form-group">
           <label for="voterEmail">Email Address *</label>
-          <input type="email" id="voterEmail" placeholder="juan@trac-fai.edu.ph" required />
+          <input type="email" id="voterEmail" placeholder="juan@tra-fai.edu.ph" required />
         </div>
         <div class="form-group">
           <label for="voterDept">Department</label>
@@ -201,6 +217,7 @@ let deletingVoterId = null;
 let editingVoterId = null;
 let votersCache = [];
 let activeElectionCache = null;
+let voterPhotoDataUrl = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const session = Auth.requireAuth('admin');
@@ -215,6 +232,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('voterForm').addEventListener('submit', saveVoter);
   document.getElementById('confirmDeleteVoter').addEventListener('click', deleteVoter);
   document.getElementById('searchVoter').addEventListener('input', renderVoters);
+  document.getElementById('voterPhotoFile').addEventListener('change', handleVoterPhotoUpload);
+  document.getElementById('removeVoterPhotoBtn').addEventListener('click', resetVoterPhotoPreview);
 
   await loadVoters();
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -277,7 +296,7 @@ function renderVoters() {
       const initials = (u.name || 'U').split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
       const photoSrc = u.photoUrl || u.photo || localStorage.getItem('tracfai_photo_' + u.id);
       const photoHtml = photoSrc
-        ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        ? `<img src="${Utils.photoSrc(photoSrc)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
         : initials;
       return `<tr>
         <td><div style="display:flex;align-items:center;gap:0.75rem;">
@@ -320,7 +339,7 @@ function renderVoters() {
     const initials = (u.name || 'U').split(' ').map(n => n[0]).join('').substr(0, 2).toUpperCase();
     const photoSrc = u.photoUrl || u.photo || localStorage.getItem('tracfai_photo_' + u.id);
     const photoHtml = photoSrc
-      ? `<img src="${photoSrc.startsWith('http') || photoSrc.startsWith('data:') ? photoSrc : '/uploads/' + photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      ? `<img src="${Utils.photoSrc(photoSrc)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
       : initials;
     const hasVoted = u.hasVoted || false;
     return `<tr>
@@ -345,10 +364,35 @@ function renderVoters() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+function handleVoterPhotoUpload() {
+  const file = this.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { Toast.show('Image must be under 2MB.', 'error'); this.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    voterPhotoDataUrl = ev.target.result;
+    document.getElementById('voterPhotoPreview').innerHTML = `<img src="${voterPhotoDataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+    document.getElementById('removeVoterPhotoBtn').style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetVoterPhotoPreview() {
+  voterPhotoDataUrl = '';
+  document.getElementById('voterPhotoPreview').innerHTML = '<i data-lucide="user" style="width:32px;height:32px;color:white;"></i>';
+  document.getElementById('voterPhotoPreview').style.background = 'var(--primary)';
+  document.getElementById('removeVoterPhotoBtn').style.display = 'none';
+  document.getElementById('voterPhotoFile').value = '';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 function openVoterModal(id = null) {
   editingVoterId = id;
   document.getElementById('voterForm').reset();
   document.getElementById('voterId').value = '';
+  voterPhotoDataUrl = null;
+  resetVoterPhotoPreview();
+
   const pwField = document.getElementById('voterPassword');
   pwField.required = !id;
   pwField.placeholder = id ? 'Leave blank to keep current' : 'Minimum 6 characters';
@@ -364,6 +408,13 @@ function openVoterModal(id = null) {
     document.getElementById('voterDept').value = u.department || '';
     document.getElementById('voterUsername').value = u.username || '';
     document.getElementById('voterStatus').value = u.status || 'active';
+    const photoSrc = u.photoUrl || u.photo || localStorage.getItem('tracfai_photo_' + u.id);
+    if (photoSrc) {
+      const src = Utils.photoSrc(photoSrc);
+      document.getElementById('voterPhotoPreview').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;">`;
+      document.getElementById('removeVoterPhotoBtn').style.display = '';
+      voterPhotoDataUrl = photoSrc;
+    }
   } else {
     document.getElementById('voterModalTitle').innerHTML = '<i data-lucide="plus"></i> Add New Voter';
   }
@@ -384,6 +435,10 @@ async function saveVoter(ev) {
     status: document.getElementById('voterStatus').value,
     role: 'voter',
   };
+  if (voterPhotoDataUrl !== null) {
+    payload.photoUrl = voterPhotoDataUrl || null;
+    payload.photo = voterPhotoDataUrl || null;
+  }
   if (pw) payload.password = pw;
 
   if (!id && (!pw || pw.length < 6)) { Toast.show('Password must be at least 6 characters.', 'error'); return; }
@@ -394,9 +449,18 @@ async function saveVoter(ev) {
   try {
     if (id) {
       await ApiClient.put(`/voters/${id}`, payload);
+      if (voterPhotoDataUrl) {
+        localStorage.setItem('tracfai_photo_' + id, voterPhotoDataUrl);
+      } else if (voterPhotoDataUrl === '') {
+        localStorage.removeItem('tracfai_photo_' + id);
+      }
       Toast.show('Voter updated!', 'success');
     } else {
-      await ApiClient.post('/voters', payload);
+      const res = await ApiClient.post('/voters', payload);
+      const newVoter = res.voter || res;
+      if (newVoter?.id && voterPhotoDataUrl) {
+        localStorage.setItem('tracfai_photo_' + newVoter.id, voterPhotoDataUrl);
+      }
       Toast.show('Voter added!', 'success');
     }
     Modal.close('voterModal');
@@ -453,7 +517,7 @@ async function rejectVoter(id, name) {
 function exportVotersCSV() {
   const voters = votersCache.filter(u => u.role === 'voter');
   Utils.exportCSV(
-    `TracFai-Voters-${new Date().toISOString().slice(0, 10)}.csv`,
+    `TRA-FAI-Voters-${new Date().toISOString().slice(0, 10)}.csv`,
     ['Name', 'Employee ID', 'Department', 'Email', 'Username', 'Status', 'Vote Status'],
     voters.map(u => [u.name, u.employeeId || '', u.department || '', u.email || '', u.username, u.status, u.hasVoted ? 'Voted' : 'Not Voted'])
   );

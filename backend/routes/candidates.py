@@ -34,7 +34,7 @@ def save_photo(file_storage):
     upload_dir = current_app.config['UPLOAD_FOLDER']
     os.makedirs(upload_dir, exist_ok=True)
     file_storage.save(os.path.join(upload_dir, filename))
-    return f"http://localhost:5000/uploads/{filename}"
+    return f"/uploads/{filename}"
 
 
 # ── GET /api/candidates ───────────────────────────────────────────────────────
